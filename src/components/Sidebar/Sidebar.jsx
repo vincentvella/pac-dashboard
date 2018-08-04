@@ -3,8 +3,8 @@ import { NavLink } from "react-router-dom";
 
 import HeaderLinks from "../Header/HeaderLinks.jsx";
 
-import imagine from "assets/img/sidebar-3.jpg";
-import logo from "assets/img/reactlogo.png";
+import imagine from "assets/img/dancer.jpg";
+import logo from "assets/img/pac-logo-transparent.png";
 
 import dashboardRoutes from "routes/dashboard.jsx";
 
@@ -39,7 +39,7 @@ class Sidebar extends Component {
         <div className="sidebar-background" style={sidebarBackground} />
         <div className="logo">
           <a
-            href="https://www.creative-tim.com"
+            href="#/dashboard"
             className="simple-text logo-mini"
           >
             <div className="logo-img">
@@ -47,10 +47,10 @@ class Sidebar extends Component {
             </div>
           </a>
           <a
-            href="https://www.creative-tim.com"
+            href="#/dashboard"
             className="simple-text logo-normal"
           >
-            Creative Tim
+            PACalendar
           </a>
         </div>
         <div className="sidebar-wrapper">

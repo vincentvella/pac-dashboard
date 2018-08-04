@@ -6,6 +6,10 @@ import {
   GoogleMap,
   Marker
 } from "react-google-maps";
+require('dotenv').config();
+
+const MapKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+console.log('MAP KEY', MapKey)
 
 const CustomMap = withScriptjs(
   withGoogleMap(props => (
@@ -25,7 +29,7 @@ const CustomMap = withScriptjs(
 function Maps({ ...prop }) {
   return (
     <CustomMap
-      googleMapURL="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE"
+      googleMapURL={`https://maps.googleapis.com/maps/api/js?key=AIzaSyA2oQJjuvFh4rGUquE4x6Mvhj5J0eLBcYw`}
       loadingElement={<div style={{ height: `100%` }} />}
       containerElement={<div style={{ height: `100vh` }} />}
       mapElement={<div style={{ height: `100%` }} />}

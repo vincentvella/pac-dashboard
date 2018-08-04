@@ -20,8 +20,8 @@ class Dashboard extends Component {
     };
   }
   handleNotificationClick(position) {
-    var color = Math.floor(Math.random() * 4 + 1);
-    var level;
+    let color = Math.floor(Math.random() * 4 + 1);
+    let level;
     switch (color) {
       case 1:
         level = "success";
@@ -53,9 +53,9 @@ class Dashboard extends Component {
   }
   componentDidMount() {
     this.setState({ _notificationSystem: this.refs.notificationSystem });
-    var _notificationSystem = this.refs.notificationSystem;
-    var color = Math.floor(Math.random() * 4 + 1);
-    var level;
+    let _notificationSystem = this.refs.notificationSystem;
+    let color = Math.floor(Math.random() * 4 + 1);
+    let level;
     switch (color) {
       case 1:
         level = "success";

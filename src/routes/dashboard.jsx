@@ -5,7 +5,6 @@ import Typography from "views/Typography/Typography";
 import Icons from "views/Icons/Icons";
 import Maps from "views/Maps/Maps";
 import Notifications from "views/Notifications/Notifications";
-import Upgrade from "views/Upgrade/Upgrade";
 
 const dashboardRoutes = [
   {
@@ -13,6 +12,48 @@ const dashboardRoutes = [
     name: "Dashboard",
     icon: "pe-7s-graph",
     component: Dashboard
+  },
+  {
+    path: "/event-add",
+    name: "Add Event",
+    icon: "pe-7s-pen",
+    component: Dashboard,
+  },
+  {
+    path: "/manage-events",
+    name: "Manage Events",
+    icon: "pe-7s-hammer",
+    component: Dashboard,
+  },
+  {
+    path: "/manage-users",
+    name: "Manage Admin Users",
+    icon: "pe-7s-user",
+    component: Dashboard,
+  },
+  {
+    path: "/scraped-data",
+    name: "Web Scraper",
+    icon: "pe-7s-science",
+    component: Dashboard,
+  },
+  {
+    path: "/orgs",
+    name: "Org Management",
+    icon: "pe-7s-users",
+    component: Dashboard,
+  },
+  {
+    path: "/god",
+    name: "God Mode",
+    icon: "pe-7s-gleam",
+    component: Dashboard,
+  },
+  {
+    path: "/feedback",
+    name: "Read Feedback",
+    icon: "pe-7s-comment",
+    component: Dashboard,
   },
   {
     path: "/user",
@@ -32,8 +73,17 @@ const dashboardRoutes = [
     icon: "pe-7s-news-paper",
     component: Typography
   },
-  { path: "/icons", name: "Icons", icon: "pe-7s-science", component: Icons },
-  { path: "/maps", name: "Maps", icon: "pe-7s-map-marker", component: Maps },
+  {
+    path: "/icons",
+    name: "Icons",
+    icon: "pe-7s-science",
+    component: Icons
+  },
+  { path: "/maps",
+    name: "Maps",
+    icon: "pe-7s-map-marker",
+    component: Maps
+  },
   {
     path: "/notifications",
     name: "Notifications",
@@ -41,13 +91,11 @@ const dashboardRoutes = [
     component: Notifications
   },
   {
-    upgrade: true,
-    path: "/upgrade",
-    name: "Upgrade to PRO",
-    icon: "pe-7s-rocket",
-    component: Upgrade
-  },
-  { redirect: true, path: "/", to: "/dashboard", name: "Dashboard" }
+    redirect: true,
+    path: "/",
+    to: "/dashboard",
+    name: "Dashboard"
+  }
 ];
 
 export default dashboardRoutes;
