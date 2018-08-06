@@ -3,10 +3,10 @@ import { NavLink } from "react-router-dom";
 
 import HeaderLinks from "../Header/HeaderLinks.jsx";
 
-import imagine from "assets/img/dancer.jpg";
-import logo from "assets/img/pac-logo-transparent.png";
+import imagine from "../../assets/img/dancer.jpg";
+import logo from "../../assets/img/pac-logo-transparent.png";
 
-import dashboardRoutes from "routes/dashboard.jsx";
+import dashboardRoutes from "../../routes/dashboard.jsx";
 
 class Sidebar extends Component {
   constructor(props) {

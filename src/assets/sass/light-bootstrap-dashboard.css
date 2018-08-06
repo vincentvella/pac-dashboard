@@ -244,9 +244,10 @@ input:focus {
       display: block; }
     .sidebar .logo .logo-img {
       width: 34px;
-      display: flex;
-      height: 24px;
-      margin-top: 2px;
+      display: inline-block;
+      height: 34px;
+      margin-left: -2px;
+      margin-top: -2px;
       margin-right: 10px;
       border-radius: 30px;
       text-align: center; }
@@ -310,7 +311,7 @@ body > .navbar-collapse .logo {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
   .sidebar .logo .simple-text,
   body > .navbar-collapse .logo .simple-text {
-    text-transform: capitalize;
+    text-transform: uppercase;
     padding: 5px 0px;
     display: block;
     font-size: 18px;
