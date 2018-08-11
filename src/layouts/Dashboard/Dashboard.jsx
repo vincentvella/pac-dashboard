@@ -3,7 +3,6 @@ import { Route, Switch, Redirect } from "react-router-dom";
 import NotificationSystem from "react-notification-system";
 
 import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
 import Sidebar from "../../components/Sidebar/Sidebar";
 
 import { style } from "../../variables/Variables.jsx";
@@ -52,38 +51,38 @@ class Dashboard extends Component {
     });
   }
   componentDidMount() {
-    this.setState({ _notificationSystem: this.refs.notificationSystem });
-    let _notificationSystem = this.refs.notificationSystem;
-    let color = Math.floor(Math.random() * 4 + 1);
-    let level;
-    switch (color) {
-      case 1:
-        level = "success";
-        break;
-      case 2:
-        level = "warning";
-        break;
-      case 3:
-        level = "error";
-        break;
-      case 4:
-        level = "info";
-        break;
-      default:
-        break;
-    }
-    _notificationSystem.addNotification({
-      title: <span data-notify="icon" className="pe-7s-gift" />,
-      message: (
-        <div>
-          Welcome to <b>Light Bootstrap Dashboard</b> - a beautiful freebie for
-          every web developer.
-        </div>
-      ),
-      level: level,
-      position: "tr",
-      autoDismiss: 15
-    });
+    // this.setState({ _notificationSystem: this.refs.notificationSystem });
+    // let _notificationSystem = this.refs.notificationSystem;
+    // let color = Math.floor(Math.random() * 4 + 1);
+    // let level;
+    // switch (color) {
+    //   case 1:
+    //     level = "success";
+    //     break;
+    //   case 2:
+    //     level = "warning";
+    //     break;
+    //   case 3:
+    //     level = "error";
+    //     break;
+    //   case 4:
+    //     level = "info";
+    //     break;
+    //   default:
+    //     break;
+    // }
+    // _notificationSystem.addNotification({
+    //   title: <span data-notify="icon" className="pe-7s-gift" />,
+    //   message: (
+    //     <div>
+    //       Welcome to <b>Light Bootstrap Dashboard</b> - a beautiful freebie for
+    //       every web developer.
+    //     </div>
+    //   ),
+    //   level: level,
+    //   position: "tr",
+    //   autoDismiss: 15
+    // });
   }
   componentDidUpdate(e) {
     if (
@@ -128,7 +127,6 @@ class Dashboard extends Component {
               );
             })}
           </Switch>
-          <Footer />
         </div>
       </div>
     );

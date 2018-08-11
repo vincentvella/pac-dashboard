@@ -1,4 +1,5 @@
 import Dashboard from "../views/Dashboard/Dashboard";
+import AddEvent from "../views/AddEvent/AddEvent";
 import UserProfile from "../views/UserProfile/UserProfile";
 import TableList from "../views/TableList/TableList";
 import Typography from "../views/Typography/Typography";
@@ -17,7 +18,7 @@ const dashboardRoutes = [
     path: "/event-add",
     name: "Add Event",
     icon: "pe-7s-pen",
-    component: Dashboard,
+    component: AddEvent,
   },
   {
     path: "/manage-events",

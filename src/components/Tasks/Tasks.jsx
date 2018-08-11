@@ -31,7 +31,7 @@ export class Tasks extends Component {
           <td>
             <Checkbox
               number={number}
-              isChecked={i === 1 || i === 2 ? true : false}
+              isChecked={i === 1 || i === 2}
             />
           </td>
           <td>{tasks_title[i]}</td>
