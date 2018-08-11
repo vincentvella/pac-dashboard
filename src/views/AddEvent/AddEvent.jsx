@@ -205,9 +205,7 @@ class AddEvent extends Component {
 												}
 											]}
 										/>
-										<Button bsStyle="primary" pullRight fill type="submit">
-											Update Profile
-										</Button>
+										<Button bsStyle="primary" pullRight fill type="submit">Submit Event</Button>
 										<div className="clearfix"/>
 									</form>
 								}
