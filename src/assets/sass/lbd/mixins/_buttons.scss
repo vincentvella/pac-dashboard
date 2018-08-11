@@ -1,6 +1,5 @@
 // Mixin for generating new styles
 @mixin btn-styles($btn-color, $btn-states-color) {
-  border-color: $btn-color;
   color: $btn-color;
   
   &:hover,

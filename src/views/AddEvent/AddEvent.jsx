@@ -5,12 +5,19 @@ import {
 	Col,
 	FormGroup,
 	ControlLabel,
-	FormControl, Radio
+	FormControl,
+	Radio,
+	DropdownButton,
+	MenuItem
 } from "react-bootstrap";
+import Select from 'react-select'
+import DateTimeField from "react-datetime"
 
 import {Card} from "../../components/Card/Card.jsx";
 import {FormInputs} from "../../components/FormInputs/FormInputs.jsx";
 import Button from "../../components/CustomButton/CustomButton.jsx";
+import '../../../node_modules/react-datetime/css/react-datetime.css';
+
 
 
 class AddEvent extends Component {
@@ -22,6 +29,10 @@ class AddEvent extends Component {
 			description: '',
 			free: 'free',
 			available: 'yes',
+			date: "1990-06-05",
+			format: "YYYY-MM-DD",
+			inputFormat: "DD/MM/YYYY",
+			mode: "date"
 		};
 		this.state = {
 			...this.clearedState,
@@ -48,9 +59,19 @@ class AddEvent extends Component {
 
 	updateRadioState = (e, type) => this.setState({[type]: e.target.value})
 
+	handleChange = (newDate) => {
+		console.log("newDate", newDate);
+		return this.setState({date: newDate});
+	}
 
 	render() {
-		console.log(this.state.free);
+		const {date, format, mode, inputFormat} = this.state;
+
+		const options = [
+			{ value: 'chocolate', label: 'Chocolate' },
+			{ value: 'strawberry', label: 'Strawberry' },
+			{ value: 'vanilla', label: 'Vanilla' }
+		];
 		return (
 			<div className="content">
 				<Grid>
@@ -101,6 +122,14 @@ class AddEvent extends Component {
 												</FormGroup>
 											</Col>
 										</Row>
+										<FormGroup controlId="formControlsTextarea">
+											<ControlLabel>Event Start Date/Time</ControlLabel>
+											<DateTimeField/>
+										</FormGroup>
+										<FormGroup controlId="formControlsTextarea">
+											<ControlLabel>Event End Date/Time</ControlLabel>
+											<DateTimeField/>
+										</FormGroup>
 										<FormGroup>
 											<ControlLabel>Free Event?</ControlLabel>
 											<div>
@@ -112,90 +141,71 @@ class AddEvent extends Component {
 												</Radio>{' '}
 											</div>
 										</FormGroup>
+										{this.state.free && this.state.free === 'paid' &&
+										<div>
+											<FormGroup>
+												<ControlLabel>Tickets Available At Door?</ControlLabel>
+												<div>
+													<Radio name="radioGroup1" inline value="yes" checked={this.state.available === 'yes'} onChange={(e) => this.updateRadioState(e, 'available')}>
+														Yes
+													</Radio>{' '}
+													<Radio name="radioGroup1" inline value="no" checked={this.state.available === 'no'} onChange={(e) => this.updateRadioState(e, 'available')}>
+														No
+													</Radio>{' '}
+												</div>
+											</FormGroup>
+											<Row>
+												<Col md={12}>
+													<FormGroup controlId="formControlsTextarea">
+														<ControlLabel>Ticket Details</ControlLabel>
+														<FormControl
+															rows="5"
+															componentClass="textarea"
+															bsClass="form-control"
+															placeholder="Please be as detailed as possible (children, student discounts, general admission, etc...)"
+															value={this.state.description}
+															onChange={(e) => this.setState({description: e.target.value})}
+														/>
+													</FormGroup>
+												</Col>
+											</Row>
+											<FormInputs
+												ncols={["col-md-12"]}
+												proprieties={[
+													{
+														label: "Ticket Link",
+														type: "text",
+														bsClass: "form-control",
+														placeholder: "https://oss.ticketmaster.com/aps/psuarts/...",
+														value: this.state.subtitle,
+														onChange: (e) => this.setState({subtitle: e.target.value})
+													}
+												]}
+											/>
+										</div>
+										}
 										<FormGroup>
-											<ControlLabel>Tickets Available At Door?</ControlLabel>
-											<div>
-												<Radio name="radioGroup1" inline value="yes" checked={this.state.available === 'yes'} onChange={(e) => this.updateRadioState(e, 'available')}>
-													Yes
-												</Radio>{' '}
-												<Radio name="radioGroup1" inline value="no" checked={this.state.available === 'no'} onChange={(e) => this.updateRadioState(e, 'available')}>
-													No
-												</Radio>{' '}
-											</div>
+											<ControlLabel>Performing Organization</ControlLabel>
+												<Select options={options} styles={customStyles} isMulti closeMenuOnSelect={false}/>
 										</FormGroup>
-										<FormInputs
-											ncols={["col-md-6", "col-md-6"]}
-											proprieties={[
-												{
-													label: "First name",
-													type: "text",
-													bsClass: "form-control",
-													placeholder: "First name",
-													defaultValue: "Mike"
-												},
-												{
-													label: "Last name",
-													type: "text",
-													bsClass: "form-control",
-													placeholder: "Last name",
-													defaultValue: "Andrew"
-												}
-											]}
-										/>
+										<FormGroup>
+											<ControlLabel>Category</ControlLabel>
+											<Select options={options} styles={customStyles} isMulti closeMenuOnSelect={false}/>
+										</FormGroup>
 										<FormInputs
 											ncols={["col-md-12"]}
 											proprieties={[
 												{
-													label: "Adress",
+													label: "Location",
 													type: "text",
 													bsClass: "form-control",
-													placeholder: "Home Adress",
-													defaultValue:
-														"Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
+													placeholder: "Add a location so people know where to show up...",
+													value: this.state.subtitle,
+													onChange: (e) => this.setState({subtitle: e.target.value})
 												}
 											]}
 										/>
-										<FormInputs
-											ncols={["col-md-4", "col-md-4", "col-md-4"]}
-											proprieties={[
-												{
-													label: "City",
-													type: "text",
-													bsClass: "form-control",
-													placeholder: "City",
-													defaultValue: "Mike"
-												},
-												{
-													label: "Country",
-													type: "text",
-													bsClass: "form-control",
-													placeholder: "Country",
-													defaultValue: "Andrew"
-												},
-												{
-													label: "Postal Code",
-													type: "number",
-													bsClass: "form-control",
-													placeholder: "ZIP Code"
-												}
-											]}
-										/>
-
-										<Row>
-											<Col md={12}>
-												<FormGroup controlId="formControlsTextarea">
-													<ControlLabel>About Me</ControlLabel>
-													<FormControl
-														rows="5"
-														componentClass="textarea"
-														bsClass="form-control"
-														placeholder="Here can be your description"
-														defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo."
-													/>
-												</FormGroup>
-											</Col>
-										</Row>
-										<Button bsStyle="info" pullRight fill type="submit">
+										<Button bsStyle="primary" pullRight fill type="submit">
 											Update Profile
 										</Button>
 										<div className="clearfix"/>
@@ -209,5 +219,12 @@ class AddEvent extends Component {
 		);
 	}
 }
+
+const customStyles = {
+	control: (base, state) => ({
+		...base,
+		backgroundColor: 'white',
+	})
+};
 
 export default AddEvent;
