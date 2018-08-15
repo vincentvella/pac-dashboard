@@ -4,7 +4,6 @@ import {
 } from 'react-bootstrap';
 import Select from 'react-select';
 import DateTimeField from 'react-datetime';
-
 import { Card } from '../../components/Card/Card';
 import { FormInputs } from '../../components/FormInputs/FormInputs';
 import Button from '../../components/CustomButton/CustomButton';
@@ -26,20 +25,36 @@ class AddEvent extends Component {
       description: '',
       free: 'free',
       available: 'yes',
-      date: '1990-06-05',
-      format: 'YYYY-MM-DD',
-      inputFormat: 'DD/MM/YYYY',
-      mode: 'date',
+      startDateTime: new Date(),
+      endDateTime: new Date(),
+      link: '',
+      ticketDetails: '',
+      category: [],
+      orgs: [],
+      location: '',
     };
     this.state = {
       ...this.clearedState,
     };
     this.resetState = this.resetState.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   onSubmit() {
     const {
-      title, subtitle, description, free, available,
+      title,
+      subtitle,
+      description,
+      free,
+      available,
+      startDateTime,
+      endDateTime,
+      link,
+      ticketDetails,
+      category,
+      orgs,
+      location,
     } = this.state;
     console.log({
       title,
@@ -47,8 +62,20 @@ class AddEvent extends Component {
       description,
       free: free === 'free' ? 0 : 1,
       available: available === 'yes' ? 0 : 1,
+      startDateTime,
+      endDateTime,
+      link,
+      ticketDetails,
+      category,
+      orgs,
+      location,
     });
+    // Here's where we will be submitting the event to the database.
     this.resetState();
+  }
+
+  handleChange(selectedOptions, state) {
+    this.setState({ [state]: selectedOptions });
   }
 
   resetState() {
@@ -62,10 +89,19 @@ class AddEvent extends Component {
   }
 
   render() {
+    console.log(this.state);
     const {
-      title, subtitle, description, free, available,
+      title,
+      subtitle,
+      description,
+      free,
+      available,
+      startDateTime,
+      endDateTime,
+      link,
+      ticketDetails,
+      location,
     } = this.state;
-
     const options = [
       { value: 'chocolate', label: 'Chocolate' },
       { value: 'strawberry', label: 'Strawberry' },
@@ -123,11 +159,17 @@ class AddEvent extends Component {
                     </Row>
                     <FormGroup controlId="formControlsTextarea">
                       <ControlLabel>Event Start Date/Time</ControlLabel>
-                      <DateTimeField />
+                      <DateTimeField
+                        onChange={newVal => this.setState({ startDateTime: newVal.toDate() })}
+                        value={startDateTime}
+                      />
                     </FormGroup>
                     <FormGroup controlId="formControlsTextarea">
                       <ControlLabel>Event End Date/Time</ControlLabel>
-                      <DateTimeField />
+                      <DateTimeField
+                        onChange={newVal => this.setState({ endDateTime: newVal.toDate() })}
+                        value={endDateTime}
+                      />
                     </FormGroup>
                     <FormGroup>
                       <ControlLabel>Free Event?</ControlLabel>
@@ -191,8 +233,8 @@ class AddEvent extends Component {
                                   componentClass="textarea"
                                   bsClass="form-control"
                                   placeholder="Please be as detailed as possible (children, student discounts, general admission, etc...)"
-                                  value={description}
-                                  onChange={e => this.setState({ description: e.target.value })}
+                                  value={ticketDetails}
+                                  onChange={e => this.setState({ ticketDetails: e.target.value })}
                                 />
                               </FormGroup>
                             </Col>
@@ -205,8 +247,8 @@ class AddEvent extends Component {
                                 type: 'text',
                                 bsClass: 'form-control',
                                 placeholder: 'https://oss.ticketmaster.com/aps/psuarts/...',
-                                value: subtitle,
-                                onChange: e => this.setState({ subtitle: e.target.value }),
+                                value: link,
+                                onChange: e => this.setState({ link: e.target.value }),
                               },
                             ]}
                           />
@@ -219,6 +261,7 @@ class AddEvent extends Component {
                         styles={customStyles}
                         isMulti
                         closeMenuOnSelect={false}
+                        onChange={selected => this.handleChange(selected, 'orgs')}
                       />
                     </FormGroup>
                     <FormGroup>
@@ -228,6 +271,7 @@ class AddEvent extends Component {
                         styles={customStyles}
                         isMulti
                         closeMenuOnSelect={false}
+                        onChange={selected => this.handleChange(selected, 'category')}
                       />
                     </FormGroup>
                     <FormInputs
@@ -238,8 +282,8 @@ class AddEvent extends Component {
                           type: 'text',
                           bsClass: 'form-control',
                           placeholder: 'Add a location so people know where to show up...',
-                          value: subtitle,
-                          onChange: e => this.setState({ subtitle: e.target.value }),
+                          value: location,
+                          onChange: e => this.setState({ location: e.target.value }),
                         },
                       ]}
                     />
