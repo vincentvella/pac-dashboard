@@ -8,6 +8,9 @@ import { Card } from '../../components/Card/Card';
 import { FormInputs } from '../../components/FormInputs/FormInputs';
 import Button from '../../components/CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
+import {bindActionCreators} from "redux";
+import {setOrgs} from "../../redux/actions/orgs";
+import connect from "react-redux/es/connect/connect";
 
 const customStyles = {
   control: base => ({
@@ -107,6 +110,9 @@ class AddEvent extends Component {
       { value: 'strawberry', label: 'Strawberry' },
       { value: 'vanilla', label: 'Vanilla' },
     ];
+    const orgs = Object.keys(this.props.orgs).map((orgKey) => {
+      return { value: orgKey, label: this.props.orgs[orgKey].name}
+    })
     return (
       <div className="content">
         <Grid>
@@ -257,7 +263,7 @@ class AddEvent extends Component {
                     <FormGroup>
                       <ControlLabel>Performing Organization</ControlLabel>
                       <Select
-                        options={options}
+                        options={orgs}
                         styles={customStyles}
                         isMulti
                         closeMenuOnSelect={false}
@@ -302,4 +308,8 @@ class AddEvent extends Component {
   }
 }
 
-export default AddEvent;
+const mapStateToProps = state => ({
+	orgs: state.orgs.model,
+});
+
+export default connect(mapStateToProps)(AddEvent);

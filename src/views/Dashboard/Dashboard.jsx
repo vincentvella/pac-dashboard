@@ -1,24 +1,27 @@
 import React, { Component } from "react";
 import ChartistGraph from "react-chartist";
 import { Grid, Row, Col } from "react-bootstrap";
-
 import { Card } from "../../components/Card/Card.jsx";
 import { StatsCard } from "../../components/StatsCard/StatsCard.jsx";
 import { Tasks } from "../../components/Tasks/Tasks.jsx";
-import {
-  dataPie,
-  legendPie,
-  dataSales,
-  optionsSales,
-  responsiveSales,
-  legendSales,
-  dataBar,
-  optionsBar,
-  responsiveBar,
-  legendBar
-} from "../../variables/Variables.jsx";
+import {dataPie, legendPie, dataSales, optionsSales, responsiveSales, legendSales, dataBar, optionsBar, responsiveBar, legendBar} from "../../variables/Variables.jsx";
+import firebase from 'firebase/app';
+import { connect } from 'react-redux';
+import {ref, setUpFirebase} from '../../api/firebase';
+import {setOrgs} from "../../redux/actions/orgs";
+import {bindActionCreators} from "redux";
 
 class Dashboard extends Component {
+  componentWillMount() {
+  	if (!firebase.apps.length) {
+		  setUpFirebase();
+	  }
+    ref.child('/Orgs').once('value').then((snapshot) => {
+    	console.log('SNAPSHOT', snapshot.val());
+    	this.props.setOrgs(snapshot.val());
+    })
+  }
+
   createLegend(json) {
     var legend = [];
     for (var i = 0; i < json["names"].length; i++) {
@@ -161,4 +164,8 @@ class Dashboard extends Component {
   }
 }
 
-export default Dashboard;
+const mapDispatchToProps = dispatch => bindActionCreators({
+	setOrgs,
+}, dispatch);
+
+export default connect(null, mapDispatchToProps)(Dashboard);

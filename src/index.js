@@ -2,19 +2,21 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import { createStore, combineReducers } from 'redux';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 import { Provider } from 'react-redux';
 import './assets/css/animate.min.css';
 import './assets/css/demo.css';
 import './assets/css/pe-icon-7-stroke.css';
 import './assets/sass/light-bootstrap-dashboard.css';
-import orgs from './redux/orgs';
+import orgs from './redux/reducers/orgs';
 import indexRoutes from './routes';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import thunk from "redux-thunk";
 
 const store = createStore(
-  combineReducers([orgs]),
+  combineReducers({orgs}),
   {},
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+	composeWithDevTools(applyMiddleware(thunk))
 );
 
 ReactDOM.render(

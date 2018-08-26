@@ -12,6 +12,7 @@
     "chartist": "0.10.1",
     "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-prettier": "^2.6.2",
+    "firebase": "^5.4.1",
     "form-serialize": "^0.7.2",
     "node-sass": "4.6.1",
     "node-sass-chokidar": "0.0.3",
@@ -28,7 +29,10 @@
     "react-router-dom": "4.2.2",
     "react-scripts": "1.1.1",
     "react-select": "^2.0.0",
-    "redux": "^4.0.0"
+    "redux": "^3.7.2",
+    "redux-devtools-extension": "^2.13.5",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.3.0"
   },
   "scripts": {
     "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
