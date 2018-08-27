@@ -12,12 +12,13 @@ import dashboardRoutes from "../../routes/dashboard.jsx";
 class Dashboard extends Component {
   constructor(props) {
     super(props);
-    this.componentDidMount = this.componentDidMount.bind(this);
+	  this.sendNotification = this.sendNotification.bind(this);
     this.handleNotificationClick = this.handleNotificationClick.bind(this);
     this.state = {
       _notificationSystem: null
     };
   }
+
   handleNotificationClick(position) {
     let color = Math.floor(Math.random() * 4 + 1);
     let level;
@@ -50,40 +51,22 @@ class Dashboard extends Component {
       autoDismiss: 15
     });
   }
-  componentDidMount() {
-    // this.setState({ _notificationSystem: this.refs.notificationSystem });
-    // let _notificationSystem = this.refs.notificationSystem;
-    // let color = Math.floor(Math.random() * 4 + 1);
-    // let level;
-    // switch (color) {
-    //   case 1:
-    //     level = "success";
-    //     break;
-    //   case 2:
-    //     level = "warning";
-    //     break;
-    //   case 3:
-    //     level = "error";
-    //     break;
-    //   case 4:
-    //     level = "info";
-    //     break;
-    //   default:
-    //     break;
-    // }
-    // _notificationSystem.addNotification({
-    //   title: <span data-notify="icon" className="pe-7s-gift" />,
-    //   message: (
-    //     <div>
-    //       Welcome to <b>Light Bootstrap Dashboard</b> - a beautiful freebie for
-    //       every web developer.
-    //     </div>
-    //   ),
-    //   level: level,
-    //   position: "tr",
-    //   autoDismiss: 15
-    // });
+
+  sendNotification(notification) {
+    console.log(this.state);
+	  this.state._notificationSystem.addNotification({
+		  title: <span data-notify="icon" className="pe-7s-check" />,
+		  message: (<div>{notification.message}</div>),
+		  level: notification.level,
+		  position: "tr",
+		  autoDismiss: 15
+	  });
   }
+
+  componentDidMount() {
+    this.setState({ _notificationSystem: this.refs.notificationSystem });
+  }
+
   componentDidUpdate(e) {
     if (
       window.innerWidth < 993 &&
@@ -98,6 +81,7 @@ class Dashboard extends Component {
       this.refs.mainPanel.scrollTop = 0;
     }
   }
+
   render() {
     return (
       <div className="wrapper">
@@ -123,7 +107,16 @@ class Dashboard extends Component {
               if (prop.redirect)
                 return <Redirect from={prop.path} to={prop.to} key={key} />;
               return (
-                <Route path={prop.path} component={prop.component} key={key} />
+                <Route
+                  path={prop.path}
+                  key={key}
+                  render={routeProps => (
+                    <prop.component
+                      {...routeProps}
+                      notificationSystem={this.sendNotification}
+                    />
+                    )}
+                />
               );
             })}
           </Switch>

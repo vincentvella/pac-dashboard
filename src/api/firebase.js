@@ -2,17 +2,16 @@ import firebase from 'firebase/app';
 require('firebase/database');
 require('firebase/auth');
 
-
 export let ref;
 
 export const setUpFirebase = () => {
 	let config = {
-		apiKey: "AIzaSyCIXHLrAxOQQY9bvlOEehKBWmKNaXrcs7o",
-		authDomain: "pacalendar-8192018.firebaseapp.com",
-		databaseURL: "https://pacalendar-8192018.firebaseio.com",
-		projectId: "pacalendar-8192018",
-		storageBucket: "pacalendar-8192018.appspot.com",
-		messagingSenderId: "654394868464"
+		apiKey: "AIzaSyAurCabmoak3wLR4TkvTvvMW-urlW5tqbQ",
+		authDomain: "pacalendar.firebaseapp.com",
+		databaseURL: "https://pacalendar.firebaseio.com/",
+		projectId: "pacalendar",
+		storageBucket: "pacalendar.appspot.com",
+		messagingSenderId: "751145285044"
 	};
 
 	firebase.initializeApp(config);

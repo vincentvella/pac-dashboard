@@ -11,6 +11,8 @@ import '../../../node_modules/react-datetime/css/react-datetime.css';
 import {bindActionCreators} from "redux";
 import {setOrgs} from "../../redux/actions/orgs";
 import connect from "react-redux/es/connect/connect";
+import {ref, setUpFirebase} from '../../api/firebase';
+import firebase from "firebase";
 
 const customStyles = {
   control: base => ({
@@ -19,7 +21,7 @@ const customStyles = {
   }),
 };
 
-class AddEvent extends Component {
+class EventForm extends Component {
   constructor(props) {
     super(props);
     this.clearedState = {
@@ -59,21 +61,30 @@ class AddEvent extends Component {
       orgs,
       location,
     } = this.state;
-    console.log({
-      title,
-      subtitle,
-      description,
-      free: free === 'free' ? 0 : 1,
-      available: available === 'yes' ? 0 : 1,
-      startDateTime,
-      endDateTime,
-      link,
-      ticketDetails,
-      category,
-      orgs,
-      location,
+    let event = {
+	    title,
+	    subtitle,
+	    description,
+	    free: free === 'free' ? 0 : 1,
+	    available: available === 'yes' ? 0 : 1,
+	    startDateTime: startDateTime.toString(),
+	    endDateTime: endDateTime.toString(),
+	    link,
+	    ticketDetails,
+	    category,
+	    orgs,
+	    location,
+    };
+	  if (!firebase.apps.length) {
+		  setUpFirebase();
+	  }
+    ref.child('Web/Events').push(event, (err) => {
+      if (err) {
+	      this.props.notificationSystem({message: err, level: "error"});
+      } else {
+	      this.props.notificationSystem({message: 'Event has been added successfully!', level:"success"});
+      }
     });
-    // Here's where we will be submitting the event to the database.
     this.resetState();
   }
 
@@ -92,7 +103,6 @@ class AddEvent extends Component {
   }
 
   render() {
-    console.log(this.state);
     const {
       title,
       subtitle,
@@ -104,15 +114,19 @@ class AddEvent extends Component {
       link,
       ticketDetails,
       location,
+	    orgs,
+	    category,
     } = this.state;
-    const options = [
-      { value: 'chocolate', label: 'Chocolate' },
-      { value: 'strawberry', label: 'Strawberry' },
-      { value: 'vanilla', label: 'Vanilla' },
+    const categories = [
+      { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
+      { value: 'Dance', label: 'Dance' },
+      { value: 'Theatre', label: 'Theatre' },
+      { value: 'Music/Instrumental', label: 'Music/Instrumental' },
+      { value: 'Writing', label: 'Writing' },
     ];
-    const orgs = Object.keys(this.props.orgs).map((orgKey) => {
+    const orgOptions = Object.keys(this.props.orgs).map((orgKey) => {
       return { value: orgKey, label: this.props.orgs[orgKey].name}
-    })
+    });
     return (
       <div className="content">
         <Grid>
@@ -121,7 +135,7 @@ class AddEvent extends Component {
               <Card
                 title="New Event"
                 content={(
-                  <form onSubmit={this.onSubmit}>
+                  <div>
                     <FormInputs
                       ncols={['col-md-12']}
                       proprieties={[
@@ -261,22 +275,24 @@ class AddEvent extends Component {
                         </div>
                     )}
                     <FormGroup>
-                      <ControlLabel>Performing Organization</ControlLabel>
+                      <ControlLabel>Performing Organization(s)</ControlLabel>
                       <Select
-                        options={orgs}
+                        options={orgOptions}
                         styles={customStyles}
                         isMulti
                         closeMenuOnSelect={false}
+                        value={orgs}
                         onChange={selected => this.handleChange(selected, 'orgs')}
                       />
                     </FormGroup>
                     <FormGroup>
                       <ControlLabel>Category</ControlLabel>
                       <Select
-                        options={options}
+                        options={categories}
                         styles={customStyles}
                         isMulti
                         closeMenuOnSelect={false}
+                        value={category}
                         onChange={selected => this.handleChange(selected, 'category')}
                       />
                     </FormGroup>
@@ -293,11 +309,11 @@ class AddEvent extends Component {
                         },
                       ]}
                     />
-                    <Button bsStyle="primary" pullRight fill type="submit">
+                    <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
                       Submit Event
                     </Button>
                     <div className="clearfix" />
-                  </form>
+                  </div>
                 )}
               />
             </Col>
@@ -312,4 +328,4 @@ const mapStateToProps = state => ({
 	orgs: state.orgs.model,
 });
 
-export default connect(mapStateToProps)(AddEvent);
+export default connect(mapStateToProps)(EventForm);

@@ -440,7 +440,8 @@ body > .navbar-collapse[data-color="purple"]:after {
   width: calc(100% - 260px); }
   .main-panel > .content {
     padding: 30px 15px;
-    min-height: calc(100% - 123px); }
+    min-height: calc(100% - 123px);
+    height: 100%; }
   .main-panel > .footer {
     border-top: 1px solid #e7e7e7; }
   .main-panel .navbar {
@@ -934,13 +935,13 @@ body > .navbar-collapse[data-color="purple"]:after {
   background-color: #63d8f1; }
 
 .alert-success {
-  background-color: #a1e82c; }
+  background-color: #2eb82e; }
 
 .alert-warning {
   background-color: #ffbc67; }
 
 .alert-danger {
-  background-color: #fc727a; }
+  background-color: #ff3333; }
 
 .table .radio,
 .table .checkbox {

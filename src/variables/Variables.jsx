@@ -102,7 +102,7 @@ var style = {
 
     success: {
       borderTop: 0,
-      backgroundColor: "#a1e82c",
+	    backgroundColor: "#2eb82e",
       WebkitBoxShadow: 0,
       MozBoxShadow: 0,
       boxShadow: 0
@@ -110,7 +110,7 @@ var style = {
 
     error: {
       borderTop: 0,
-      backgroundColor: "#fc727a",
+	    backgroundColor: "#ff3333",
       WebkitBoxShadow: 0,
       MozBoxShadow: 0,
       boxShadow: 0
@@ -214,12 +214,12 @@ var style = {
     },
 
     success: {
-      backgroundColor: "#a1e82c",
+      backgroundColor: "#2eb82e",
       color: "#ffffff"
     },
 
     error: {
-      backgroundColor: "#fc727a",
+      backgroundColor: "#ff3333",
       color: "#ffffff"
     },
 

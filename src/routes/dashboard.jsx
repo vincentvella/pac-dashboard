@@ -1,11 +1,12 @@
 import Dashboard from "../views/Dashboard/Dashboard";
-import AddEvent from "../views/AddEvent/AddEvent";
+import EventForm from "../views/EventForm/EventForm";
 import UserProfile from "../views/UserProfile/UserProfile";
 import TableList from "../views/TableList/TableList";
 import Typography from "../views/Typography/Typography";
 import Icons from "../views/Icons/Icons";
 import Maps from "../views/Maps/Maps";
 import Notifications from "../views/Notifications/Notifications";
+import ManageEvents from "../views/ManageEvents/ManageEvents";
 
 const dashboardRoutes = [
   {
@@ -18,13 +19,13 @@ const dashboardRoutes = [
     path: "/event-add",
     name: "Add Event",
     icon: "pe-7s-pen",
-    component: AddEvent,
+    component: EventForm,
   },
   {
     path: "/manage-events",
     name: "Manage Events",
     icon: "pe-7s-hammer",
-    component: Dashboard,
+    component: ManageEvents,
   },
   {
     path: "/manage-users",
