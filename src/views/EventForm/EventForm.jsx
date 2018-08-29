@@ -8,8 +8,6 @@ import { Card } from '../../components/Card/Card';
 import { FormInputs } from '../../components/FormInputs/FormInputs';
 import Button from '../../components/CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
-import {bindActionCreators} from "redux";
-import {setOrgs} from "../../redux/actions/orgs";
 import connect from "react-redux/es/connect/connect";
 import {ref, setUpFirebase} from '../../api/firebase';
 import firebase from "firebase";
@@ -37,14 +35,44 @@ class EventForm extends Component {
       category: [],
       orgs: [],
       location: '',
+	    key: '',
     };
-    this.state = {
-      ...this.clearedState,
-    };
+    this.initialState = {};
+    if (props.currentEvent) {
+	    this.initialState = {
+		    ...props.currentEvent,
+		    startDateTime: new Date(props.currentEvent.startDateTime),
+		    endDateTime: new Date(props.currentEvent.endDateTime),
+		    free: props.currentEvent.free === 0 ? 'free' : 'paid',
+		    available: props.currentEvent.available === 0 ? 'yes' : 'no',
+	    };
+    }
+    if (props.currentEvent) {
+	    this.state = {
+		    ...this.initialState,
+	    };
+    } else {
+      this.state = {
+        ...this.clearedState
+      }
+    }
     this.resetState = this.resetState.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
+
+  componentWillReceiveProps(nextProps) {
+  	if (nextProps.currentEvent) {
+		  this.setState({
+			  ...nextProps.currentEvent,
+			  startDateTime: new Date(nextProps.currentEvent.startDateTime),
+			  endDateTime: new Date(nextProps.currentEvent.endDateTime),
+			  free: nextProps.currentEvent.free === 0 ? 'free' : 'paid',
+			  available: nextProps.currentEvent.available === 0 ? 'yes' : 'no',
+		  })
+	  }
+  }
+
 
   onSubmit() {
     const {
@@ -78,13 +106,26 @@ class EventForm extends Component {
 	  if (!firebase.apps.length) {
 		  setUpFirebase();
 	  }
-    ref.child('Web/Events').push(event, (err) => {
-      if (err) {
-	      this.props.notificationSystem({message: err, level: "error"});
-      } else {
-	      this.props.notificationSystem({message: 'Event has been added successfully!', level:"success"});
-      }
-    });
+	  if (this.state.key === '') {
+		  ref.child('Web/Events').push(event, (err) => {
+			  if (err) {
+				  this.props.notificationSystem({message: err, level: "error"});
+			  } else {
+				  this.props.notificationSystem({message: 'Event has been added successfully!', level: "success"});
+			  }
+		  });
+	  } else if (this.state.key && this.state.key !== '') {
+		  ref.child(`Web/Events/${this.state.key}`).set(event, (err) => {
+			  if (err) {
+				  this.props.notificationSystem({message: err, level: "error"});
+			  } else {
+				  this.props.notificationSystem({message: 'Event has been edited successfully!', level: "success"});
+			  }
+		  });
+		  this.props.clearSelected();
+	  } else {
+		  this.props.notificationSystem({message: 'There\'s been an error saving that data.', level: "error"});
+	  }
     this.resetState();
   }
 
@@ -131,9 +172,9 @@ class EventForm extends Component {
       <div className="content">
         <Grid>
           <Row>
-            <Col lgOffset={1} mdOffset={1} sm={12} md={10} lg={10}>
+            <Col sm={18} md={12} lg={12}>
               <Card
-                title="New Event"
+                title={(this.state.key && this.state.key !== '') ? 'Edit Event' : 'New Event'}
                 content={(
                   <div>
                     <FormInputs
@@ -310,7 +351,7 @@ class EventForm extends Component {
                       ]}
                     />
                     <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
-                      Submit Event
+	                    {(this.state.key && this.state.key !== '') ? 'Update Event' : 'Submit Event'}
                     </Button>
                     <div className="clearfix" />
                   </div>

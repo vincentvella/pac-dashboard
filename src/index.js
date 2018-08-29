@@ -9,6 +9,7 @@ import './assets/css/demo.css';
 import './assets/css/pe-icon-7-stroke.css';
 import './assets/sass/light-bootstrap-dashboard.css';
 import orgs from './redux/reducers/orgs';
+import events from './redux/reducers/events';
 import indexRoutes from './routes';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from "redux-thunk";
@@ -28,8 +29,12 @@ const zingos = () => {
 	if (process.env !== 'production') {
 		middleware.push(createLogger());
 	}
+	let rootReducer = combineReducers({
+		orgs,
+		events,
+	})
 	const enhancer = composeWithDevTools({})(applyMiddleware(...middleware));
-	const persistedReducer = persistReducer(persistConfig, combineReducers({orgs}));
+	const persistedReducer = persistReducer(persistConfig, rootReducer);
 	let store = createStore(persistedReducer, {}, enhancer);
 	let persistor = persistStore(store);
 	return {store, persistor};
