@@ -9,8 +9,10 @@ import { FormInputs } from '../../components/FormInputs/FormInputs';
 import Button from '../../components/CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
 import connect from "react-redux/es/connect/connect";
-import {ref, setUpFirebase} from '../../api/firebase';
+import {ref, storageRef, setUpFirebase} from '../../api/firebase';
 import firebase from "firebase";
+import FileUploader from 'react-firebase-file-uploader';
+import { Line } from 'rc-progress';
 
 const customStyles = {
   control: base => ({
@@ -36,6 +38,9 @@ class EventForm extends Component {
       orgs: [],
       location: '',
 	    key: '',
+	    progress: 0,
+	    url: '',
+	    isUploading: false,
     };
     this.initialState = {};
     if (props.currentEvent) {
@@ -45,6 +50,7 @@ class EventForm extends Component {
 		    endDateTime: new Date(props.currentEvent.endDateTime),
 		    free: props.currentEvent.free === 0 ? 'free' : 'paid',
 		    available: props.currentEvent.available === 0 ? 'yes' : 'no',
+		    link: props.currentEvent.ticketLink ? props.currentEvent.ticketLink : props.currentEvent.link,
 	    };
     }
     if (props.currentEvent) {
@@ -56,52 +62,57 @@ class EventForm extends Component {
         ...this.clearedState
       }
     }
+	  if (!firebase.apps.length) {
+		  setUpFirebase();
+	  }
+	  this.storageRef = storageRef;
     this.resetState = this.resetState.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.handleUploadError = this.handleUploadError.bind(this);
+    this.handleUploadStart = this.handleUploadStart.bind(this);
+    this.handleProgress = this.handleProgress.bind(this);
+    this.handleUploadSuccess = this.handleUploadSuccess.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
   	if (nextProps.currentEvent) {
-		  this.setState({
-			  ...nextProps.currentEvent,
-			  startDateTime: new Date(nextProps.currentEvent.startDateTime),
-			  endDateTime: new Date(nextProps.currentEvent.endDateTime),
-			  free: nextProps.currentEvent.free === 0 ? 'free' : 'paid',
-			  available: nextProps.currentEvent.available === 0 ? 'yes' : 'no',
-		  })
+		  this.resetState().then(() => {
+			  this.setState({
+				  ...nextProps.currentEvent,
+				  startDateTime: new Date(nextProps.currentEvent.startDateTime),
+				  endDateTime: new Date(nextProps.currentEvent.endDateTime),
+				  free: nextProps.currentEvent.free === 0 ? 'free' : 'paid',
+				  available: nextProps.currentEvent.available === 0 ? 'yes' : 'no',
+				  link: nextProps.currentEvent.ticketLink ? nextProps.currentEvent.ticketLink : nextProps.currentEvent.link,
+			  })
+		  });
 	  }
   }
 
+	handleUploadStart = () => this.setState({ isUploading: true, progress: 0 });
+
+	handleProgress = progress => this.setState({ progress });
+
+	handleUploadError = (error) => {
+		this.setState({ isUploading: false });
+		this.props.notificationSystem({message: 'There was an error uploading that image.', level: "error"});
+	};
+
+	handleUploadSuccess = (filename) => {
+		this.setState({ progress: 100, isUploading: false });
+		this.storageRef.child(filename)
+			.getDownloadURL()
+			.then(url => this.setState({ url: url, changed: true }));
+	};
 
   onSubmit() {
-    const {
-      title,
-      subtitle,
-      description,
-      free,
-      available,
-      startDateTime,
-      endDateTime,
-      link,
-      ticketDetails,
-      category,
-      orgs,
-      location,
-    } = this.state;
-    let event = {
-	    title,
-	    subtitle,
-	    description,
+    const {title, subtitle, description, free, available, startDateTime, endDateTime, link, ticketDetails, category, orgs, location, url,} = this.state;
+    let event = {title, subtitle, description, link, ticketDetails, category, orgs, location, url,
 	    free: free === 'free' ? 0 : 1,
 	    available: available === 'yes' ? 0 : 1,
 	    startDateTime: startDateTime.toString(),
 	    endDateTime: endDateTime.toString(),
-	    link,
-	    ticketDetails,
-	    category,
-	    orgs,
-	    location,
     };
 	  if (!firebase.apps.length) {
 		  setUpFirebase();
@@ -133,8 +144,8 @@ class EventForm extends Component {
     this.setState({ [state]: selectedOptions });
   }
 
-  resetState() {
-    this.setState({
+  async resetState() {
+    await this.setState({
       ...this.clearedState,
     });
   }
@@ -144,19 +155,8 @@ class EventForm extends Component {
   }
 
   render() {
-    const {
-      title,
-      subtitle,
-      description,
-      free,
-      available,
-      startDateTime,
-      endDateTime,
-      link,
-      ticketDetails,
-      location,
-	    orgs,
-	    category,
+    const {title, subtitle, description, free, available, startDateTime, endDateTime, link, ticketDetails, location,
+	    orgs, category
     } = this.state;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
@@ -168,6 +168,7 @@ class EventForm extends Component {
     const orgOptions = Object.keys(this.props.orgs).map((orgKey) => {
       return { value: orgKey, label: this.props.orgs[orgKey].name}
     });
+    console.log('STATE', this.state);
     return (
       <div className="content">
         <Grid>
@@ -350,6 +351,37 @@ class EventForm extends Component {
                         },
                       ]}
                     />
+	                  <FormGroup controlId="formControlsFile">
+		                  <Col sm={4}>
+			                  <ControlLabel>Image Upload</ControlLabel>
+			                  <br/>
+			                  <label
+				                  style={{
+					                  backgroundColor: 'steelblue',
+					                  color: 'white',
+					                  padding: 10,
+					                  borderRadius: 4,
+					                  cursor: 'pointer'
+				                  }}
+			                  >
+				                  Upload an Image
+				                  <FileUploader
+					                  hidden
+					                  randomizeFilename
+					                  accept="image/*"
+					                  storageRef={this.storageRef}
+					                  onUploadStart={this.handleUploadStart}
+					                  onUploadError={this.handleUploadError}
+					                  onUploadSuccess={this.handleUploadSuccess}
+					                  onProgress={this.handleProgress}
+				                  />
+			                  </label>
+		                  </Col>
+		                  <Col sm={14}>
+			                  {this.state.isUploading && <p>Progress: {<Line percent={this.state.progress} strokeWidth="4" strokeColor="#D3D3D3" />}</p>}
+			                  {this.state.url && <img alt=" " src={this.state.url} width="200px" height="auto" style={{ paddingBottom: '25px' }}/>}
+		                  </Col>
+	                  </FormGroup>
                     <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
 	                    {(this.state.key && this.state.key !== '') ? 'Update Event' : 'Submit Event'}
                     </Button>

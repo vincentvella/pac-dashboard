@@ -3,7 +3,6 @@
     box-shadow: 0 1px 2px rgba(0,0,0,.05),0 0 0 1px rgba(63,63,68,.1);
     background-color: #FFFFFF;
     margin-bottom: 30px;
-
     .image{
         width: 100%;
         overflow: hidden;
@@ -201,6 +200,10 @@
     .image{
         border-radius: 4px;
     }
+}
+.fullPage{
+  height: calc(100% - 200px);
+  overflow-y: auto;
 }
 
 .card-stats{

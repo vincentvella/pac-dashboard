@@ -3,6 +3,7 @@ require('firebase/database');
 require('firebase/auth');
 
 export let ref;
+export let storageRef;
 
 export const setUpFirebase = () => {
 	let config = {
@@ -10,13 +11,15 @@ export const setUpFirebase = () => {
 		authDomain: "pacalendar.firebaseapp.com",
 		databaseURL: "https://pacalendar.firebaseio.com/",
 		projectId: "pacalendar",
-		storageBucket: "pacalendar.appspot.com",
+		storageBucket: "pac-event-app.appspot.com",
 		messagingSenderId: "751145285044"
 	};
 
 	firebase.initializeApp(config);
 
 	let db = firebase.database();
+	let bucket = firebase.storage().ref('images');
 
-	ref = db.ref()
+	ref = db.ref();
+	storageRef = bucket;
 };

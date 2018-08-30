@@ -1871,6 +1871,10 @@ body > .navbar-collapse[data-color="purple"]:after {
   .card-plain .image {
     border-radius: 4px; }
 
+.fullPage {
+  height: calc(100% - 200px);
+  overflow-y: auto; }
+
 .card-stats .icon-big {
   font-size: 3em;
   min-height: 64px; }
