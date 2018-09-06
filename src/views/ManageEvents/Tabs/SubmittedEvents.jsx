@@ -4,17 +4,10 @@ import connect from "react-redux/es/connect/connect";
 import {ref, setUpFirebase} from '../../../api/firebase';
 import firebase from "firebase";
 import EventForm from "../../EventForm/EventForm";
-import {Col, Grid, ListGroup, ListGroupItem, Row, Tab, Tabs, Well} from "react-bootstrap";
+import {Col, ListGroup, ListGroupItem, Row, Well} from "react-bootstrap";
 import Card from "../../../components/Card/Card";
 import {bindActionCreators} from "redux";
 import {setPendingEvents} from "../../../redux/actions/events";
-
-const customStyles = {
-	control: base => ({
-		...base,
-		backgroundColor: 'white',
-	}),
-};
 
 class SubmittedEvents extends Component {
 

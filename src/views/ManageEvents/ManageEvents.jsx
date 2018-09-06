@@ -1,18 +1,11 @@
 import React, { Component } from 'react';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
 import connect from "react-redux/es/connect/connect";
-import {ref, setUpFirebase} from '../../api/firebase';
+import {setUpFirebase} from '../../api/firebase';
 import firebase from "firebase";
 import {Row, Tab, Tabs} from "react-bootstrap";
 import SubmittedEvents from "./Tabs/SubmittedEvents";
 import LegacyTransitioner from "./Tabs/LegacyTransitioner";
-
-const customStyles = {
-	control: base => ({
-		...base,
-		backgroundColor: 'white',
-	}),
-};
 
 class ManageEvents extends Component {
 
