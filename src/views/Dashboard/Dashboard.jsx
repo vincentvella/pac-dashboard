@@ -1,37 +1,50 @@
-import React, { Component } from "react";
-import ChartistGraph from "react-chartist";
-import { Grid, Row, Col } from "react-bootstrap";
-import { Card } from "../../components/Card/Card.jsx";
-import { StatsCard } from "../../components/StatsCard/StatsCard.jsx";
-import { Tasks } from "../../components/Tasks/Tasks.jsx";
-import {dataPie, legendPie, dataSales, optionsSales, responsiveSales, legendSales, dataBar, optionsBar, responsiveBar, legendBar} from "../../variables/Variables.jsx";
+import React, { Component } from 'react';
+import ChartistGraph from 'react-chartist';
+import { Grid, Row, Col } from 'react-bootstrap';
 import firebase from 'firebase/app';
 import { connect } from 'react-redux';
-import {ref, setUpFirebase} from '../../api/firebase';
-import {setOrgs} from "../../redux/actions/orgs";
-import {bindActionCreators} from "redux";
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
+import Card from '../../components/Card/Card';
+import { StatsCard } from '../../components/StatsCard/StatsCard';
+import Tasks from '../../components/Tasks/Tasks';
+import {
+  dataPie,
+  legendPie,
+  dataSales,
+  optionsSales,
+  responsiveSales,
+  legendSales,
+  dataBar,
+  optionsBar,
+  responsiveBar,
+  legendBar,
+} from '../../variables/Variables';
+import { ref, setUpFirebase } from '../../api/firebase';
+import { setOrgs } from '../../redux/actions/orgs';
 
 class Dashboard extends Component {
   componentWillMount() {
-  	if (!firebase.apps.length) {
-		  setUpFirebase();
-	  }
+    if (!firebase.apps.length) {
+      setUpFirebase();
+    }
     ref.child('/Orgs').once('value').then((snapshot) => {
-    	console.log('SNAPSHOT', snapshot.val());
-    	this.props.setOrgs(snapshot.val());
-    })
+      // eslint-disable-next-line react/destructuring-assignment
+      this.props.setOrgs(snapshot.val());
+    });
   }
 
-  createLegend(json) {
-    var legend = [];
-    for (var i = 0; i < json["names"].length; i++) {
-      var type = "fa fa-circle text-" + json["types"][i];
+  createLegend = (json) => {
+    const legend = [];
+    for (let i = 0; i < json.names.length; i++) {
+      const type = `fa fa-circle text-${json.types[i]}`;
       legend.push(<i className={type} key={i} />);
-      legend.push(" ");
-      legend.push(json["names"][i]);
+      legend.push(' ');
+      legend.push(json.names[i]);
     }
     return legend;
-  }
+  };
+
   render() {
     return (
       <div className="content">
@@ -82,7 +95,7 @@ class Dashboard extends Component {
                 title="Users Behavior"
                 category="24 Hours performance"
                 stats="Updated 3 minutes ago"
-                content={
+                content={(
                   <div className="ct-chart">
                     <ChartistGraph
                       data={dataSales}
@@ -91,7 +104,7 @@ class Dashboard extends Component {
                       responsiveOptions={responsiveSales}
                     />
                   </div>
-                }
+                )}
                 legend={
                   <div className="legend">{this.createLegend(legendSales)}</div>
                 }
@@ -103,14 +116,14 @@ class Dashboard extends Component {
                 title="Email Statistics"
                 category="Last Campaign Performance"
                 stats="Campaign sent 2 days ago"
-                content={
+                content={(
                   <div
                     id="chartPreferences"
                     className="ct-chart ct-perfect-fourth"
                   >
                     <ChartistGraph data={dataPie} type="Pie" />
                   </div>
-                }
+                )}
                 legend={
                   <div className="legend">{this.createLegend(legendPie)}</div>
                 }
@@ -126,7 +139,7 @@ class Dashboard extends Component {
                 category="All products including Taxes"
                 stats="Data information certified"
                 statsIcon="fa fa-check"
-                content={
+                content={(
                   <div className="ct-chart">
                     <ChartistGraph
                       data={dataBar}
@@ -135,7 +148,7 @@ class Dashboard extends Component {
                       responsiveOptions={responsiveBar}
                     />
                   </div>
-                }
+                )}
                 legend={
                   <div className="legend">{this.createLegend(legendBar)}</div>
                 }
@@ -148,13 +161,13 @@ class Dashboard extends Component {
                 category="Backend development"
                 stats="Updated 3 minutes ago"
                 statsIcon="fa fa-history"
-                content={
+                content={(
                   <div className="table-full-width">
                     <table className="table">
                       <Tasks />
                     </table>
                   </div>
-                }
+                )}
               />
             </Col>
           </Row>
@@ -164,8 +177,16 @@ class Dashboard extends Component {
   }
 }
 
+Dashboard.propTypes = {
+  setOrgs: PropTypes.func,
+};
+
+Dashboard.defaultProps = {
+  setOrgs: () => {},
+};
+
 const mapDispatchToProps = dispatch => bindActionCreators({
-	setOrgs,
+  setOrgs,
 }, dispatch);
 
 export default connect(null, mapDispatchToProps)(Dashboard);

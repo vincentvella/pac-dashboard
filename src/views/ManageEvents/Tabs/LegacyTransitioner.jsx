@@ -3,7 +3,7 @@ import '../../../../node_modules/react-datetime/css/react-datetime.css';
 import connect from "react-redux/es/connect/connect";
 import {ref, setUpFirebase} from '../../../api/firebase';
 import firebase from "firebase";
-import EventForm from "../../EventForm/EventForm";
+import EventForm from "../../../components/Forms/EventForm";
 import {Col, ListGroup, ListGroupItem, Row, Well} from "react-bootstrap";
 import Card from "../../../components/Card/Card";
 import {bindActionCreators} from "redux";
