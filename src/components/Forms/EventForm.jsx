@@ -1,9 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/label-has-for */
 import React, { Component } from 'react';
-import {
-  Grid, Row, Col, FormGroup, ControlLabel, FormControl, Radio,
-} from 'react-bootstrap';
+import { Grid, Row, Col, FormGroup, ControlLabel, FormControl, Radio } from 'react-bootstrap';
 import Select from 'react-select';
 import DateTimeField from 'react-datetime';
 import connect from 'react-redux/es/connect/connect';

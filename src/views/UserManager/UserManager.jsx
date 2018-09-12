@@ -3,14 +3,14 @@ import '../../../node_modules/react-datetime/css/react-datetime.css';
 import connect from 'react-redux/es/connect/connect';
 import firebase from 'firebase';
 import PropTypes from 'prop-types';
-import { Col, ListGroup, ListGroupItem, Row, Well, } from 'react-bootstrap';
+import { Col, ListGroup, ListGroupItem, Row, Well } from 'react-bootstrap';
 import { bindActionCreators } from 'redux';
 import { ref, setUpFirebase } from '../../api/firebase';
 import Card from '../../components/Card/Card';
 import { setOrgs } from '../../redux/actions/orgs';
 import OrgForm from '../../components/Forms/OrgForm';
 
-class OrgManager extends Component {
+class UserManager extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -102,11 +102,11 @@ class OrgManager extends Component {
   }
 }
 
-OrgManager.propTypes = {
+UserManager.propTypes = {
   notificationSystem: PropTypes.func,
 };
 
-OrgManager.defaultProps = {
+UserManager.defaultProps = {
   notificationSystem: () => {},
 };
 
@@ -118,4 +118,4 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   setOrgs,
 }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrgManager);
+export default connect(mapStateToProps, mapDispatchToProps)(UserManager);

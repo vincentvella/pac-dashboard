@@ -4,6 +4,7 @@
   "rules": {
     "strict": 0,
     "no-plusplus": "off",
+    "object-curly-newline": "off",
     "allowForLoopAfterthoughts": true,
     "declaration": {
       "allowArrowFuntions": true

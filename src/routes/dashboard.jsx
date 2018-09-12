@@ -8,6 +8,7 @@ import Maps from '../views/Maps/Maps';
 import Notifications from '../views/Notifications/Notifications';
 import ManageEvents from '../views/ManageEvents/ManageEvents';
 import OrgManager from "../views/OrgManager/OrgManager";
+import UserManager from "../views/UserManager/UserManager";
 
 const dashboardRoutes = [
   {
@@ -38,7 +39,7 @@ const dashboardRoutes = [
     path: '/manage-users',
     name: 'Manage Admin Users',
     icon: 'pe-7s-user',
-    component: Dashboard,
+    component: UserManager,
   },
   {
     path: '/scraped-data',

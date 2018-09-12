@@ -1,11 +1,8 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/label-has-for */
 import React, { Component } from 'react';
-import {
-  Grid, Row, Col, FormGroup, ControlLabel, FormControl, Radio,
-} from 'react-bootstrap';
+import { Grid, Row, Col, FormGroup, ControlLabel } from 'react-bootstrap';
 import Select from 'react-select';
-import DateTimeField from 'react-datetime';
 import connect from 'react-redux/es/connect/connect';
 import firebase from 'firebase';
 import FileUploader from 'react-firebase-file-uploader';
@@ -14,7 +11,7 @@ import Card from '../Card/Card';
 import { FormInputs } from '../FormInputs/FormInputs';
 import Button from '../CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
-import { ref, storageRef, setUpFirebase } from '../../api/firebase';
+import { storageRef, setUpFirebase } from '../../api/firebase';
 
 const customStyles = {
   control: base => ({
@@ -147,7 +144,7 @@ class OrgForm extends Component {
     this.setState({ progress: 100, isUploading: false });
     this.storageRef.child(filename)
       .getDownloadURL()
-      .then(imageURL => this.setState({ imageURL, changed: true }));
+      .then(imageURL => this.setState({ imageURL }));
   };
 
   handleChange(selectedOptions, state) {
@@ -160,10 +157,6 @@ class OrgForm extends Component {
     });
   }
 
-  updateRadioState(e, type) {
-    this.setState({ [type]: e.target.value });
-  }
-
   render() {
     const {
       name,
@@ -174,9 +167,6 @@ class OrgForm extends Component {
       isUploading,
       progress,
     } = this.state;
-    const {
-      orgs,
-    } = this.props;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
@@ -184,17 +174,13 @@ class OrgForm extends Component {
       { value: 'Music/Instrumental', label: 'Music/Instrumental' },
       { value: 'Writing', label: 'Writing' },
     ];
-    const orgOptions = Object.keys(orgs).map(orgKey => ({
-      value: orgKey,
-      label: orgs[orgKey].name,
-    }));
     return (
       <div className="content">
         <Grid>
           <Row>
             <Col sm={18} md={12} lg={10}>
               <Card
-                title={(key && key !== '') ? 'Edit Organizaiton' : 'New Organization'}
+                title={(key && key !== '') ? 'Edit Organization' : 'New Organization'}
                 content={(
                   <div>
                     <FormInputs
