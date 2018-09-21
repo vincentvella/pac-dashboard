@@ -1,3 +1,4 @@
+/* eslint-disable no-nested-ternary */
 import React, { Component } from 'react';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
 import connect from 'react-redux/es/connect/connect';
@@ -7,39 +8,45 @@ import { Col, ListGroup, ListGroupItem, Row, Well } from 'react-bootstrap';
 import { bindActionCreators } from 'redux';
 import { ref, setUpFirebase } from '../../api/firebase';
 import Card from '../../components/Card/Card';
-import { setOrgs } from '../../redux/actions/orgs';
-import OrgForm from '../../components/Forms/OrgForm';
+import { setUsers } from '../../redux/actions/users';
+import UserForm from '../../components/Forms/UserForm';
 
 class UserManager extends Component {
   constructor(props) {
     super(props);
     this.state = {
       selected: '',
+      adding: false,
     };
     this.clearSelected = this.clearSelected.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
   }
 
   componentWillMount() {
     if (!firebase.apps.length) {
       setUpFirebase();
     }
-    ref.child('/Orgs').once('value').then((snapshot) => {
+    ref.child('/Web/Users').once('value').then((snapshot) => {
       // eslint-disable-next-line react/destructuring-assignment
-      this.props.setOrgs(snapshot.val());
+      this.props.setUsers(snapshot.val());
     });
   }
 
   clearSelected() {
-    this.setState({ selected: '' });
+    this.setState({ selected: '', adding: false });
+  }
+
+  handleAdd() {
+    this.setState({ adding: true });
   }
 
   render() {
-    const { orgs, notificationSystem } = this.props;
-    const { selected } = this.state;
-    let orgKeys = [];
-    const propKeys = Object.keys(orgs);
+    const { users, notificationSystem } = this.props;
+    const { selected, adding } = this.state;
+    let userKeys = [];
+    const propKeys = Object.keys(users);
     if (propKeys && propKeys.length && propKeys.length > 0) {
-      orgKeys = propKeys;
+      userKeys = propKeys;
     }
 
     return (
@@ -48,31 +55,33 @@ class UserManager extends Component {
           <Col sm={8} md={8} lg={4}>
             <Card
               fill
-              title="Organizations"
-              badge={orgKeys.length}
+              add
+              addFunc={this.handleAdd}
+              title="Users"
+              badge={userKeys.length}
               content={(
                 <div>
-                  {orgKeys.length && orgKeys.length > 0
+                  {userKeys.length && userKeys.length > 0
                     ? (
                       <ListGroup>
-                        {orgKeys.map((orgKey) => {
-                          if (selected === orgKey) {
+                        {userKeys.map((userKey) => {
+                          if (selected === userKey) {
                             return (
                               <ListGroupItem
-                                key={orgKey}
-                                header={orgs[orgKey].name}
-                                href="#/orgs"
+                                key={userKey}
+                                header={users[userKey].email}
+                                href="#/manage-users"
                                 bsStyle="info"
-                                onClick={() => this.setState({ selected: orgKey })}
+                                onClick={() => this.setState({ selected: userKey })}
                               />
                             );
                           }
                           return (
                             <ListGroupItem
-                              key={orgKey}
-                              header={orgs[orgKey].name}
-                              href="#/orgs"
-                              onClick={() => this.setState({ selected: orgKey })}
+                              key={userKey}
+                              header={users[userKey].email}
+                              href="#/manage-users"
+                              onClick={() => this.setState({ selected: userKey })}
                             />
                           );
                         })}
@@ -83,10 +92,15 @@ class UserManager extends Component {
             />
           </Col>
           <Col sm={10} md={8} lg={8}>
-            {selected !== '' && orgs && orgs[selected]
+            {selected !== '' && users && users[selected]
               ? (
-                <OrgForm
-                  currentOrg={{ key: selected, ...orgs[selected] }}
+                <UserForm
+                  currentUser={{ key: selected, ...users[selected] }}
+                  notificationSystem={notificationSystem}
+                  clearSelected={this.clearSelected}
+                />
+              ) : (adding) ? (
+                <UserForm
                   notificationSystem={notificationSystem}
                   clearSelected={this.clearSelected}
                 />
@@ -111,11 +125,11 @@ UserManager.defaultProps = {
 };
 
 const mapStateToProps = state => ({
-  orgs: state.orgs.model,
+  users: state.users.model,
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  setOrgs,
+  setUsers,
 }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserManager);

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Badge } from 'react-bootstrap';
+import Button from "../CustomButton/CustomButton";
 
 export default function Card(props) {
   const {
@@ -18,13 +19,16 @@ export default function Card(props) {
     statsIcon,
     plain,
     badge,
+    add,
+    addFunc,
   } = props;
   return (
     <div className={`card ${fill ? 'fullPage' : ''} ${plain ? 'card-plain' : ''}`}>
       <div className={`header${hCenter ? ' text-center' : ''}`}>
         <h4 className="title">
           {title}&nbsp;&nbsp;&nbsp;
-          <Badge>{badge}</Badge>
+          <Badge>{badge}</Badge>&nbsp;&nbsp;&nbsp;
+          {add && <Button bsStyle="primary" fill onClick={addFunc}>Add New</Button>}
         </h4>
         <p className="category">{category}</p>
       </div>
@@ -60,6 +64,8 @@ Card.propTypes = {
   statsIcon: PropTypes.string,
   plain: PropTypes.string,
   badge: PropTypes.number,
+  add: PropTypes.bool,
+  addFunc: PropTypes.func,
 };
 
 Card.defaultProps = {
@@ -77,4 +83,6 @@ Card.defaultProps = {
   statsIcon: '',
   plain: '',
   badge: null,
+  add: false,
+  addFunc: () => {},
 };

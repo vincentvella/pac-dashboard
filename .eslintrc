@@ -5,6 +5,8 @@
     "strict": 0,
     "no-plusplus": "off",
     "object-curly-newline": "off",
+    "no-tabs": "off",
+    "no-mixed-spaces-and-tabs": "off",
     "allowForLoopAfterthoughts": true,
     "declaration": {
       "allowArrowFuntions": true
