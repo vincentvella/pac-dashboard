@@ -7,8 +7,9 @@ import Icons from '../views/Icons/Icons';
 import Maps from '../views/Maps/Maps';
 import Notifications from '../views/Notifications/Notifications';
 import ManageEvents from '../views/ManageEvents/ManageEvents';
-import OrgManager from "../views/OrgManager/OrgManager";
-import UserManager from "../views/UserManager/UserManager";
+import OrgManager from '../views/OrgManager/OrgManager';
+import UserManager from '../views/UserManager/UserManager';
+import EventScraper from '../views/Scraper/EventScraper';
 
 const dashboardRoutes = [
   {
@@ -42,10 +43,10 @@ const dashboardRoutes = [
     component: UserManager,
   },
   {
-    path: '/scraped-data',
+    path: '/scraper',
     name: 'Web Scraper',
     icon: 'pe-7s-science',
-    component: Dashboard,
+    component: EventScraper,
   },
   {
     path: '/god',
