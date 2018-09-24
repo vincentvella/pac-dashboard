@@ -1,4 +1,4 @@
-import { Col, Grid, Jumbotron, Row } from 'react-bootstrap';
+import { Col, Grid, Jumbotron, Panel, ProgressBar, Row } from 'react-bootstrap';
 import React, { Component } from 'react';
 import axios from 'axios';
 import cheerio from 'cheerio';
@@ -64,6 +64,11 @@ class EventScraper extends Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+      scraping: false,
+      progress: 0,
+      events: {},
+    };
     this.runScraper = this.runScraper.bind(this);
   }
 
@@ -78,12 +83,17 @@ class EventScraper extends Component {
     const promises = [];
     for (let i = 1; i < 13; i++) {
       for (let j = 1; j < 31; j++) {
-        promises.push(new Promise((resolve) => {
-          EventScraper.makeRequest(i, j)
-            .then((val) => {
-              resolve(val);
-            });
-        }));
+        promises.push(
+          new Promise((resolve) => {
+            EventScraper.makeRequest(i, j)
+              .then((val) => {
+                resolve(val);
+                this.setState({ progress: this.state.progress + 1 });
+              }).catch((err) => {
+                this.setState({ progress: this.state.progress + 1 });
+              });
+          }),
+        );
       }
     }
     await Promise.all(promises).then(async (val) => {
@@ -93,7 +103,7 @@ class EventScraper extends Component {
           res = { ...res, [eventKey]: requestGroup[eventKey] };
         });
       });
-      await ref.child('/Scraped-Events/accepted').once('value').then((snapshot) => {
+      await ref.child('/Scraped-Events').once('value').then((snapshot) => {
         const currentAcceptedEvents = snapshot.val();
         let condensedEvents = {};
         Object.keys(res).forEach((eventKey) => {
@@ -107,25 +117,79 @@ class EventScraper extends Component {
         events = condensedEvents;
       });
     });
-    console.log('EVENTS', events);
+    this.setState({ events });
   }
 
   render() {
+    const {
+      scraping,
+      progress,
+      events,
+    } = this.state;
     return (
       <div className="content">
         <Grid>
           <Row>
-            <Col xs={8} xsOffset={2}>
-              <Jumbotron>
-                <h1>Event Scraper</h1>
-                <p>
-                  Click the button below to start the scraping process. This could take a couple of
-                  seconds so feel free to grab a cup of coffee or something in the meantime!
-                </p>
-                <p>
-                  <Button fill bsStyle="primary" onClick={() => this.runScraper()}>Start Scraper</Button>
-                </p>
-              </Jumbotron>
+            <Col xs={12}>
+              <Panel>
+                <Panel.Body>
+                  <Jumbotron>
+                    <h1>Event Scraper</h1>
+                    <p>
+                      Click the button below to start the scraping process. This could take a couple
+                      of
+                      seconds so feel free to grab a cup of coffee or something in the meantime!
+                    </p>
+                    <p>
+                      <Button
+                        fill
+                        bsStyle="primary"
+                        disabled={scraping}
+                        onClick={() => {
+                          this.setState({ scraping: true, progress: 0 }, () => {
+                            this.runScraper().then(() => {
+                              this.setState({ scraping: false });
+                            });
+                          });
+                        }}
+                      >
+                        Start Scraper
+                      </Button>
+                    </p>
+                  </Jumbotron>
+                  {scraping
+                  && (
+                    <ProgressBar
+                      striped
+                      active
+                      bsStyle="success"
+                      now={progress / 3.6}
+                      label={`${parseInt(progress / 3.6, 10)}%`}
+                    />
+                  )}
+                </Panel.Body>
+                {events && Object.keys(events).length > 0 && (
+                  <Panel.Body>
+                    <Jumbotron>
+                      <h1>{`Found ${Object.keys(events).length} events`}</h1>
+                      <p>
+                        These events have been scraped from our source 25live and
+                        need your attention.
+                      </p>
+                      <Button
+                        fill
+                        bsStyle="success"
+                        disabled={scraping}
+                        onClick={() => {
+                          console.log('HEY');
+                        }}
+                      >
+                        Approve Events
+                      </Button>
+                    </Jumbotron>
+                  </Panel.Body>
+                )}
+              </Panel>
             </Col>
           </Row>
         </Grid>
