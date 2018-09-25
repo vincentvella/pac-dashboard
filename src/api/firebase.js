@@ -5,6 +5,7 @@ require('firebase/auth');
 
 export let ref;
 export let storageRef;
+export let authRef;
 
 export const setUpFirebase = () => {
   const config = {
@@ -22,5 +23,6 @@ export const setUpFirebase = () => {
   const bucket = firebase.storage().ref('images');
 
   ref = db.ref();
+  authRef = firebase.auth;
   storageRef = bucket;
 };
