@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { auth } from '../../api/auth';
+import { auth, getUserInfo } from '../../api/auth';
 
 function setErrorMsg(error) {
   return {
@@ -9,12 +9,23 @@ function setErrorMsg(error) {
 
 export default class Login extends Component {
   state = { loginMessage: null }
+
   handleSubmit = (e) => {
     e.preventDefault()
     auth(this.email.value, this.pw.value)
+      .then((user) => {
+        if (user) {
+          console.log(user);
+          getUserInfo(user.user.uid).then((u) => {
+            console.log('USER INFO', u);
+          });
+        } else {
+          console.log('MEH');
+        }
+      })
       .catch((error) => {
         this.setState(setErrorMsg('Invalid username/password.'))
-      })
+      });
   }
 
   render() {
@@ -28,7 +39,7 @@ export default class Login extends Component {
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input type="password" className="form-control" placeholder="Password" ref={(pw) => this.pw = pw} />
+            <input type="password" className="form-control" placeholder="Password" ref={pw => this.pw = pw} />
           </div>
           {
             this.state.loginMessage &&
@@ -38,7 +49,7 @@ export default class Login extends Component {
               &nbsp;{this.state.loginMessage}
             </div>
           }
-          <button type="submit" className="btn btn-primary">Login</button>
+          <button type="submit" className="btn btn-primary" onClick={() => this.handleSubmit}>Login</button>
         </form>
       </div>
     )
