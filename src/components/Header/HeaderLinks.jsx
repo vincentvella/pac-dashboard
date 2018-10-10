@@ -50,7 +50,8 @@ class HeaderLinks extends Component {
           </NavDropdown>
           */}
           <NavItem eventKey={3} href="#" onClick={logOut}>
-            Log out
+            <i className="fa fa-sign-out" />
+            &nbsp;Log out
           </NavItem>
         </Nav>
       </div>

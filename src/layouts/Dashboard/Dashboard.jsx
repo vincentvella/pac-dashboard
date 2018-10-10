@@ -73,7 +73,7 @@ class Dashboard extends Component {
         <NotificationSystem ref="notificationSystem" style={style} />
         {authed && (
           <div>
-            <Sidebar {...this.props} />
+            <Sidebar {...this.props} deauthenticateUser={this.deauthRoutes} logOut={logOut} />
             <div id="main-panel" className="main-panel" ref="mainPanel">
               <Header {...this.props} deauthenticateUser={this.deauthRoutes} logOut={logOut} />
               <Switch>

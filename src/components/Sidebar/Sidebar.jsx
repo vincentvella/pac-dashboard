@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-
 import PropTypes from 'prop-types';
-import { bindActionCreators } from 'redux';
 import connect from 'react-redux/es/connect/connect';
-import HeaderLinks from '../Header/HeaderLinks.jsx';
-
+import HeaderLinks from '../Header/HeaderLinks';
 import imagine from '../../assets/img/dancer.jpg';
 import logo from '../../assets/img/pac-logo-transparent.png';
-
-import dashboardRoutes from '../../routes/dashboard.jsx';
-import { logOut } from '../../redux/actions/login';
+import dashboardRoutes from '../../routes/dashboard';
 
 class Sidebar extends Component {
   constructor(props) {
@@ -34,6 +29,7 @@ class Sidebar extends Component {
   }
 
   render() {
+    const { deauthenticateUser, logOut } = this.props;
     const sidebarBackground = {
       backgroundImage: `url(${imagine})`,
     };
@@ -63,10 +59,17 @@ class Sidebar extends Component {
         </div>
         <div className="sidebar-wrapper">
           <ul className="nav">
-            {this.state.width <= 991 ? <HeaderLinks /> : null}
+            {this.state.width <= 991
+              ? (
+                <HeaderLinks
+                  logOut={() => {
+                    deauthenticateUser();
+                    logOut();
+                  }}
+                />)
+              : null}
             {dashboardRoutes.map((prop, key) => {
               if (prop.authLevels.includes(this.props.permissions)) {
-                console.log('WE GOT THE SIDEBAR TOO');
                 if (!prop.redirect) {
                   return (
                     <li
