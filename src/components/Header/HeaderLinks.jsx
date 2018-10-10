@@ -1,19 +1,13 @@
-import React, { Component } from "react";
-import { NavItem, Nav, NavDropdown, MenuItem } from "react-bootstrap";
+import React, { Component } from 'react';
+import { NavItem, Nav } from 'react-bootstrap';
 
 class HeaderLinks extends Component {
   render() {
-    const notification = (
-      <div>
-        <i className="fa fa-globe" />
-        <b className="caret" />
-        <span className="notification">5</span>
-        <p className="hidden-lg hidden-md">Notification</p>
-      </div>
-    );
+    const { logOut } = this.props;
     return (
       <div>
         <Nav>
+          {/*
           <NavItem eventKey={1} href="#">
             <i className="fa fa-dashboard" />
             <p className="hidden-lg hidden-md">Dashboard</p>
@@ -34,8 +28,10 @@ class HeaderLinks extends Component {
             <i className="fa fa-search" />
             <p className="hidden-lg hidden-md">Search</p>
           </NavItem>
+          */}
         </Nav>
         <Nav pullRight>
+          {/*
           <NavItem eventKey={1} href="#">
             Account
           </NavItem>
@@ -52,7 +48,8 @@ class HeaderLinks extends Component {
             <MenuItem divider />
             <MenuItem eventKey={2.5}>Separated link</MenuItem>
           </NavDropdown>
-          <NavItem eventKey={3} href="#">
+          */}
+          <NavItem eventKey={3} href="#" onClick={logOut}>
             Log out
           </NavItem>
         </Nav>

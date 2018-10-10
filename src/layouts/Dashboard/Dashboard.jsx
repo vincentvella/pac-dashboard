@@ -1,68 +1,27 @@
+/* eslint-disable no-undef,react/no-string-refs,react/destructuring-assignment,no-underscore-dangle,no-shadow,no-array-index-key */
 import React, { Component } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import NotificationSystem from 'react-notification-system';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import connect from 'react-redux/es/connect/connect';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import { style } from '../../variables/Variables';
 import dashboardRoutes from '../../routes/dashboard';
 import authRoutes from '../../routes/auth';
+import { logOut } from '../../redux/actions/login';
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
-	  this.sendNotification = this.sendNotification.bind(this);
-    this.handleNotificationClick = this.handleNotificationClick.bind(this);
+    this.deauthRoutes = this.deauthRoutes.bind(this);
+    this.sendNotification = this.sendNotification.bind(this);
+    this.authenticateRoutes = this.authenticateRoutes.bind(this);
     this.state = {
       _notificationSystem: null,
-      authed: false,
+      authed: props.authed,
     };
-  }
-
-  handleNotificationClick(position) {
-    const color = Math.floor(Math.random() * 4 + 1);
-    let level;
-    switch (color) {
-      case 1:
-        level = 'success';
-        break;
-      case 2:
-        level = 'warning';
-        break;
-      case 3:
-        level = 'error';
-        break;
-      case 4:
-        level = 'info';
-        break;
-      default:
-        break;
-    }
-    this.state._notificationSystem.addNotification({
-      title: <span data-notify="icon" className="pe-7s-gift" />,
-      message: (
-        <div>
-          Welcome to
-          {' '}
-          <b>Light Bootstrap Dashboard</b>
-          {' '}
-- a beautiful freebie for
-          every web developer.
-        </div>
-      ),
-      level,
-      position,
-      autoDismiss: 15,
-    });
-  }
-
-  sendNotification(notification) {
-	  this.state._notificationSystem.addNotification({
-		  title: <span data-notify="icon" className="pe-7s-check" />,
-		  message: (<div>{notification.message}</div>),
-		  level: notification.level,
-		  position: 'tr',
-		  autoDismiss: 15,
-	  });
   }
 
   componentDidMount() {
@@ -84,9 +43,31 @@ class Dashboard extends Component {
     }
   }
 
+  authenticateRoutes() {
+    this.setState({
+      authed: true,
+    });
+  }
+
+  deauthRoutes() {
+    this.setState({
+      authed: false,
+    });
+  }
+
+  sendNotification(notification) {
+	  this.state._notificationSystem.addNotification({
+		  title: <span data-notify="icon" className="pe-7s-check" />,
+		  message: (<div>{notification.message}</div>),
+		  level: notification.level,
+		  position: 'tr',
+		  autoDismiss: 15,
+	  });
+  }
+
   render() {
     const { authed } = this.state;
-    console.log('AUTHED', authed);
+    const { logOut, permissions } = this.props;
     return (
       <div className="wrapper">
         <NotificationSystem ref="notificationSystem" style={style} />
@@ -94,10 +75,10 @@ class Dashboard extends Component {
           <div>
             <Sidebar {...this.props} />
             <div id="main-panel" className="main-panel" ref="mainPanel">
-              <Header {...this.props} />
+              <Header {...this.props} deauthenticateUser={this.deauthRoutes} logOut={logOut} />
               <Switch>
                 {dashboardRoutes.map((prop, key) => {
-                  if (prop.name === 'Notifications') {
+                  if (prop.name === 'Notifications' && prop.authLevels.includes(permissions)) {
                     return (
                       <Route
                         path={prop.path}
@@ -112,41 +93,73 @@ class Dashboard extends Component {
                     );
                   }
                   if (prop.redirect) return <Redirect from={prop.path} to={prop.to} key={key} />;
-                  return (
-                    <Route
-                      path={prop.path}
-                      key={key}
-                      render={routeProps => (
-                        <prop.component
-                          {...routeProps}
-                          notificationSystem={this.sendNotification}
-                        />
-                      )}
-                    />
-                  );
+                  if (prop.authLevels.includes(permissions)) {
+                    console.log('WE GOT THE ROUTE');
+                    return (
+                      <Route
+                        path={prop.path}
+                        key={key}
+                        render={routeProps => (
+                          <prop.component
+                            {...routeProps}
+                            notificationSystem={this.sendNotification}
+                            deauthenticateUser={this.deauthRoutes}
+                          />
+                        )}
+                      />
+                    );
+                  }
                 })}
               </Switch>
             </div>
           </div>
         )}
-        {!authed && authRoutes.map((prop, key) => {
-          if (prop.redirect) return <Redirect from={prop.path} to={prop.to} key={key} />;
-          return (
-            <Route
-              path={prop.path}
-              key={key}
-              render={routeProps => (
-                <prop.component
-                  {...routeProps}
-                  notificationSystem={this.sendNotification}
-                />
-              )}
-            />
-          );
-        })}
-      </div>
+        {!authed && (
+          <div>
+            <Switch>
+              {authRoutes.map((prop, key) => {
+                if (prop.redirect) return <Redirect to={prop.to} key={key} />;
+                return (
+                  <Route
+                    path={prop.path}
+                    key={key}
+                    render={routeProps => (
+                      <prop.component
+                        {...routeProps}
+                        notificationSystem={this.sendNotification}
+                        authenticateUser={this.authenticateRoutes}
+                      />
+                    )}
+                  />
+                );
+              })}
+            </Switch>
+          </div>
+        )}
+        </div>
     );
   }
 }
 
-export default Dashboard;
+Dashboard.propTypes = {
+  authed: PropTypes.bool,
+  logOut: PropTypes.func,
+  permissions: PropTypes.number,
+};
+
+Dashboard.defaultProps = {
+  authed: false,
+  logOut: () => {},
+  permissions: 3,
+};
+
+const mapStateToProps = state => ({
+  authed: state.login.authed,
+  permissions: state && state.login && state.login.model && state.login.model.permissionLevel,
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  logOut,
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

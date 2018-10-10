@@ -1,33 +1,41 @@
-import React, { Component } from "react";
-import { NavLink } from "react-router-dom";
+import React, { Component } from 'react';
+import { NavLink } from 'react-router-dom';
 
-import HeaderLinks from "../Header/HeaderLinks.jsx";
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import connect from 'react-redux/es/connect/connect';
+import HeaderLinks from '../Header/HeaderLinks.jsx';
 
-import imagine from "../../assets/img/dancer.jpg";
-import logo from "../../assets/img/pac-logo-transparent.png";
+import imagine from '../../assets/img/dancer.jpg';
+import logo from '../../assets/img/pac-logo-transparent.png';
 
-import dashboardRoutes from "../../routes/dashboard.jsx";
+import dashboardRoutes from '../../routes/dashboard.jsx';
+import { logOut } from '../../redux/actions/login';
 
 class Sidebar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      width: window.innerWidth
+      width: window.innerWidth,
     };
   }
+
   activeRoute(routeName) {
-    return this.props.location.pathname.indexOf(routeName) > -1 ? "active" : "";
+    return this.props.location.pathname.indexOf(routeName) > -1 ? 'active' : '';
   }
+
   updateDimensions() {
     this.setState({ width: window.innerWidth });
   }
+
   componentDidMount() {
     this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions.bind(this));
+    window.addEventListener('resize', this.updateDimensions.bind(this));
   }
+
   render() {
     const sidebarBackground = {
-      backgroundImage: "url(" + imagine + ")"
+      backgroundImage: `url(${imagine})`,
     };
     return (
       <div
@@ -57,26 +65,30 @@ class Sidebar extends Component {
           <ul className="nav">
             {this.state.width <= 991 ? <HeaderLinks /> : null}
             {dashboardRoutes.map((prop, key) => {
-              if (!prop.redirect)
-                return (
-                  <li
-                    className={
-                      prop.upgrade
-                        ? "active active-pro"
-                        : this.activeRoute(prop.path)
-                    }
-                    key={key}
-                  >
-                    <NavLink
-                      to={prop.path}
-                      className="nav-link"
-                      activeClassName="active"
+              if (prop.authLevels.includes(this.props.permissions)) {
+                console.log('WE GOT THE SIDEBAR TOO');
+                if (!prop.redirect) {
+                  return (
+                    <li
+                      className={
+                        prop.upgrade
+                          ? 'active active-pro'
+                          : this.activeRoute(prop.path)
+                      }
+                      key={key}
                     >
-                      <i className={prop.icon} />
-                      <p>{prop.name}</p>
-                    </NavLink>
-                  </li>
-                );
+                      <NavLink
+                        to={prop.path}
+                        className="nav-link"
+                        activeClassName="active"
+                      >
+                        <i className={prop.icon} />
+                        <p>{prop.name}</p>
+                      </NavLink>
+                    </li>
+                  );
+                }
+              }
               return null;
             })}
           </ul>
@@ -86,4 +98,17 @@ class Sidebar extends Component {
   }
 }
 
-export default Sidebar;
+
+Sidebar.propTypes = {
+  permissions: PropTypes.number,
+};
+
+Sidebar.defaultProps = {
+  permissions: 3,
+};
+
+const mapStateToProps = state => ({
+  permissions: state && state.login && state.login.model && state.login.model.permissionLevel,
+});
+
+export default connect(mapStateToProps)(Sidebar);

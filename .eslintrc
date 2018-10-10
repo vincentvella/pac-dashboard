@@ -7,6 +7,9 @@
     "object-curly-newline": "off",
     "no-tabs": "off",
     "no-mixed-spaces-and-tabs": "off",
+    "no-return-assign": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/label-has-for": "off",
     "allowForLoopAfterthoughts": true,
     "declaration": {
       "allowArrowFuntions": true
