@@ -9,7 +9,9 @@ import Card from '../Card/Card';
 import { FormInputs } from '../FormInputs/FormInputs';
 import Button from '../CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
-import { setUpFirebase } from '../../api/firebase';
+import { ref, setUpFirebase } from '../../api/firebase';
+import { bindActionCreators } from "redux";
+import { setUsers } from "../../redux/actions/users";
 
 const customStyles = {
   control: base => ({
@@ -30,16 +32,17 @@ class OrgForm extends Component {
 
     this.initialState = {};
     if (props.currentUser) {
-      let mappedGenres = props.currentUser.orgs;
+      let mappedOrgs = props.currentUser.orgs;
       if (props.currentUser.orgs && props.currentUser.orgs.length > 0) {
         // eslint-disable-next-line arrow-body-style,react/prop-types
-        mappedGenres = props.currentUser.orgs.map((genre) => {
-          return { value: genre, label: genre };
+        mappedOrgs = props.currentUser.orgs.map((org) => {
+          const userOrg = props.allOrgs[org];
+          return { value: org, label: userOrg.name };
         });
       }
       this.initialState = {
         ...props.currentUser,
-        genres: mappedGenres,
+        orgs: mappedOrgs,
       };
     }
     if (props.currentUser) {
@@ -66,7 +69,8 @@ class OrgForm extends Component {
         if (nextProps.currentUser.orgs && nextProps.currentUser.orgs.length > 0) {
           // eslint-disable-next-line arrow-body-style,react/prop-types
           mappedOrgs = nextProps.currentUser.orgs.map((org) => {
-            return { value: org, label: org };
+            const userOrg = nextProps.allOrgs[org];
+            return { value: org, label: userOrg.name };
           });
         }
         this.setState({
@@ -78,8 +82,59 @@ class OrgForm extends Component {
   }
 
 
-  onSubmit(e) {
-    console.log(e);
+  onSubmit() {
+    const { email, orgs, permissionLevel, key, } = this.state;
+    const { notificationSystem, clearSelected } = this.props;
+    let event = {};
+    if (key) {
+      if (email) event = { ...event, email };
+      if (orgs) {
+        const resultingOrgs = [];
+        orgs.forEach((org) => {
+          resultingOrgs.push(org.value);
+        });
+        event = { ...event, orgs: resultingOrgs };
+      }
+      if (permissionLevel) event = { ...event, permissionLevel };
+      ref.child(`Web/Users/${key}`).set(event, (err) => {
+        if (err) {
+          notificationSystem({ message: err, level: 'error' });
+        } else {
+          notificationSystem({ message: 'User has been edited successfully!', level: 'success' });
+        }
+      });
+    } else {
+      if (email) event = { ...event, email };
+      if (orgs) {
+        const resultingOrgs = [];
+        orgs.forEach((org) => {
+          resultingOrgs.push(org.value);
+        });
+        event = { ...event, orgs: resultingOrgs };
+      }
+      if (permissionLevel) event = { ...event, permissionLevel };
+      fetch('https://pacalendar-api.herokuapp.com/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({...event}),
+      }).then(() => {
+        this.resetState().then(() => {
+          notificationSystem({ message: 'User has been added successfully!', level: 'success' });
+          clearSelected();
+        });
+      }).catch((err) => {
+        notificationSystem({ message: err, level: 'error' });
+      });
+    }
+    if (!firebase.apps.length) {
+      setUpFirebase();
+    }
+    ref.child('/Web/Users').once('value').then((snapshot) => {
+      // eslint-disable-next-line react/destructuring-assignment
+      this.props.setUsers(snapshot.val());
+    });
   }
 
   handleChange(selectedOptions, state) {
@@ -93,7 +148,6 @@ class OrgForm extends Component {
   }
 
   render() {
-    console.log(this.state);
     const {
       email,
       orgs,
@@ -189,4 +243,8 @@ const mapStateToProps = state => ({
   allOrgs: state.orgs.model,
 });
 
-export default connect(mapStateToProps)(OrgForm);
+const mapDispatchToProps = dispatch => bindActionCreators({
+  setUsers,
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(OrgForm);

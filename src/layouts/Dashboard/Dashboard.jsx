@@ -94,7 +94,6 @@ class Dashboard extends Component {
                   }
                   if (prop.redirect) return <Redirect from={prop.path} to={prop.to} key={key} />;
                   if (prop.authLevels.includes(permissions)) {
-                    console.log('WE GOT THE ROUTE');
                     return (
                       <Route
                         path={prop.path}
