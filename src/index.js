@@ -19,6 +19,7 @@ import indexRoutes from './routes';
 import events from './redux/reducers/events';
 import orgs from './redux/reducers/orgs';
 import users from './redux/reducers/users';
+import login from "./redux/reducers/login";
 
 const persistConfig = {
   key: 'root',
@@ -35,6 +36,7 @@ const zingos = () => {
     orgs,
     events,
     users,
+    login,
   });
   const enhancer = composeWithDevTools({})(applyMiddleware(...middleware));
   const persistedReducer = persistReducer(persistConfig, rootReducer);

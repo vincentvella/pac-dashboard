@@ -32,22 +32,25 @@ class UserManager extends Component {
     });
   }
 
-  clearSelected() {
-    this.setState({ selected: '', adding: false });
+  async clearSelected() {
+    await this.setState({ selected: '', adding: false });
   }
 
   handleAdd() {
-    this.setState({ adding: true });
+    this.clearSelected().then(() => {
+      this.setState({ adding: true });
+    });
   }
 
   render() {
     const { users, notificationSystem } = this.props;
     const { selected, adding } = this.state;
-    let userKeys = [];
-    const propKeys = Object.keys(users);
-    if (propKeys && propKeys.length && propKeys.length > 0) {
-      userKeys = propKeys;
-    }
+    const userKeys = [];
+    Object.keys(users).forEach((userKey) => {
+      if (users[userKey].permissionLevel !== 0) {
+        userKeys.push(userKey);
+      }
+    });
 
     return (
       <div className="content">

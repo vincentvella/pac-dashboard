@@ -166,7 +166,6 @@ class EventScraper extends Component {
                       active
                       bsStyle="success"
                       now={progress / 3.6}
-                      label={`${parseInt(progress / 3.6, 10)}%`}
                     />
                   )}
                 </Panel.Body>

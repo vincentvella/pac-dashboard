@@ -212,7 +212,6 @@ class EventForm extends Component {
       value: orgKey,
       label: this.props.orgs[orgKey].name,
     }));
-    console.log('STATE', this.state);
     return (
       <div className="content">
         <Grid>

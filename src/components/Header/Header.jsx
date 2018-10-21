@@ -55,6 +55,7 @@ class Header extends Component {
     return name;
   }
   render() {
+    const { deauthenticateUser, logOut } = this.props;
     return (
       <Navbar fluid>
         <Navbar.Header>
@@ -64,7 +65,12 @@ class Header extends Component {
           <Navbar.Toggle onClick={this.mobileSidebarToggle} />
         </Navbar.Header>
         <Navbar.Collapse>
-          <HeaderLinks />
+          <HeaderLinks
+            logOut={() => {
+              deauthenticateUser();
+              logOut();
+            }}
+          />
         </Navbar.Collapse>
       </Navbar>
     );
