@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/label-has-for */
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Grid, Row, Col, FormGroup, ControlLabel, FormControl, Radio } from 'react-bootstrap';
 import Select from 'react-select';
 import DateTimeField from 'react-datetime';
@@ -94,22 +94,10 @@ class EventForm extends Component {
 
   onSubmit() {
     const {
-      title,
-      subtitle,
-      description,
-      free,
-      available,
-      startDateTime,
-      endDateTime,
-      link,
-      ticketDetails,
-      category,
-      orgs,
-      location,
-      url,
-      key,
+      title, subtitle, description, free, available, startDateTime, endDateTime, link,
+      ticketDetails,category, orgs, location, url, key,
     } = this.state;
-    const { notificationSystem, clearSelected } = this.props
+    const { notificationSystem, clearSelected, review } = this.props
     const event = {
       title,
       subtitle,
@@ -128,25 +116,41 @@ class EventForm extends Component {
     if (!firebase.apps.length) {
       setUpFirebase();
     }
-    if (key === '') {
-      ref.child('Web/Events').push(event, (err) => {
+    if (review) {
+      let approvedEvent = {};
+      Object.keys(event).forEach((e) => {
+        if (e && event[e]) {
+          approvedEvent = { ...approvedEvent, [e]: event[e] };
+        }
+      });
+      ref.child(`Mobile/Events/${key}`).set(approvedEvent, (err) => {
         if (err) {
           notificationSystem({ message: err, level: 'error' });
         } else {
-          notificationSystem({ message: 'Event has been added successfully!', level: 'success' });
+          notificationSystem({ message: 'You\'ve approved an event, it\'s now in the mobile app!', level: 'success' });
         }
       });
-    } else if (key && key !== '') {
-      ref.child(`Web/Events/${key}`).set(event, (err) => {
-        if (err) {
-          notificationSystem({ message: err, level: 'error' });
-        } else {
-          notificationSystem({ message: 'Event has been edited successfully!', level: 'success' });
-        }
-      });
-      clearSelected();
     } else {
-      notificationSystem({ message: 'There\'s been an error saving that data.', level: 'error' });
+      if (key === '') {
+        ref.child('Web/Events').push(event, (err) => {
+          if (err) {
+            notificationSystem({ message: err, level: 'error' });
+          } else {
+            notificationSystem({ message: 'Event has been added successfully!', level: 'success' });
+          }
+        });
+      } else if (key && key !== '') {
+        ref.child(`Web/Events/${key}`).set(event, (err) => {
+          if (err) {
+            notificationSystem({ message: err, level: 'error' });
+          } else {
+            notificationSystem({ message: 'Event has been edited successfully!', level: 'success' });
+          }
+        });
+        clearSelected();
+      } else {
+        notificationSystem({ message: 'There\'s been an error saving that data.', level: 'error' });
+      }
     }
     this.resetState();
   }
@@ -201,6 +205,7 @@ class EventForm extends Component {
       progress,
       url,
     } = this.state;
+    const {review} = this.props;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
@@ -430,12 +435,25 @@ class EventForm extends Component {
                         {url && <img alt=" " src={url} width="200px" height="auto" style={{ paddingBottom: '25px' }} />}
                       </Col>
                     </FormGroup>
-                    <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
-                      {(key && key !== '') ? 'Update Event' : 'Submit Event'}
-                    </Button>
+                    <div className="clearfix" />
+                    {review
+                      ? (
+                        <Fragment>
+                          <Button bsStyle="success" pullRight btnLeftSpacing fill type="submit" onClick={this.onSubmit}>
+                            Approve
+                          </Button>
+                          <Button bsStyle="danger" pullRight fill type="submit" onClick={this.onSubmit}>
+                            Decline
+                          </Button>
+                        </Fragment>)
+                      : (
+                        <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
+                          {(key && key !== '') ? 'Update Event' : 'Submit Event'}
+                        </Button>)}
                     <div className="clearfix" />
                   </div>
                 )}
+
               />
             </Col>
           </Row>

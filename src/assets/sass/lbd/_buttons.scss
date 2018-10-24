@@ -1,7 +1,7 @@
 .btn{
     background-color: $transparent-bg;
     font-weight: $font-weight-normal;
-    
+
     @include opacity(.8);
     padding: $padding-base-vertical $padding-base-horizontal;
     
@@ -78,6 +78,9 @@
     &.btn-icon{
         padding: $padding-base-vertical;
     }
+}
+.btn-left-spacing{
+  margin-left: 10px;
 }
 .btn-lg{
    @include btn-size($padding-large-vertical, $padding-large-horizontal, $font-size-large, $border-radius-large);

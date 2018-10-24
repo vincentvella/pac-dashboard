@@ -108,6 +108,7 @@ class Dashboard extends Component {
                       />
                     );
                   }
+                  return null;
                 })}
               </Switch>
             </div>

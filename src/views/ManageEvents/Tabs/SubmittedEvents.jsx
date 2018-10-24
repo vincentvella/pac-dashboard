@@ -95,6 +95,7 @@ class SubmittedEvents extends Component {
             {selected !== '' && pendingEvents && pendingEvents[selected]
               ? (
                 <EventForm
+                  review
                   currentEvent={{ key: selected, ...pendingEvents[selected] }}
                   notificationSystem={notificationSystem}
                   clearSelected={this.clearSelected}

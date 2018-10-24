@@ -5,22 +5,8 @@ import Button from "../CustomButton/CustomButton";
 
 export default function Card(props) {
   const {
-    fill,
-    hCenter,
-    title,
-    category,
-    content,
-    ctAllIcons,
-    ctTableFullWidth,
-    ctTableUpgrade,
-    ctTableResponsive,
-    legend,
-    stats,
-    statsIcon,
-    plain,
-    badge,
-    add,
-    addFunc,
+    fill, hCenter, title, category, content, ctAllIcons, ctTableFullWidth, ctTableUpgrade,
+    ctTableResponsive, legend, stats, statsIcon, plain, badge, add, addFunc,
   } = props;
   return (
     <div className={`card ${fill ? 'fullPage' : ''} ${plain ? 'card-plain' : ''}`}>

@@ -709,6 +709,9 @@ body > .navbar-collapse[data-color="purple"]:after {
   .btn-simple.btn-icon {
     padding: 8px; }
 
+.btn-left-spacing {
+  margin-left: 10px; }
+
 .btn-lg {
   font-size: 18px;
   border-radius: 6px;
