@@ -88,9 +88,11 @@ class EventScraper extends Component {
             EventScraper.makeRequest(i, j)
               .then((val) => {
                 resolve(val);
-                this.setState({ progress: this.state.progress + 1 });
+                const { progress } = this.state;
+                this.setState({ progress: progress + 1 });
               }).catch((err) => {
-                this.setState({ progress: this.state.progress + 1 });
+                const { progress } = this.state;
+                this.setState({ progress: progress + 1 });
               });
           }),
         );
