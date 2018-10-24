@@ -11,7 +11,9 @@ import Card from '../Card/Card';
 import { FormInputs } from '../FormInputs/FormInputs';
 import Button from '../CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
-import { storageRef, setUpFirebase } from '../../api/firebase';
+import { ref, storageRef, setUpFirebase } from '../../api/firebase';
+import { bindActionCreators } from "redux";
+import { setOrgs } from "../../redux/actions/orgs";
 
 const customStyles = {
   control: base => ({
@@ -88,46 +90,47 @@ class OrgForm extends Component {
 
 
   onSubmit() {
-    /*
-    const {
-      name,
-      website,
-      imageURL,
-      genres,
-      key,
-    } = this.state;
+    const { name, website, imageURL, genres, key } = this.state;
     const { notificationSystem, clearSelected } = this.props;
-    const event = {
-      name,
-      website,
-      imageURL,
-      genres,
-    };
+    const orgGenres = [];
+    if (genres) {
+      genres.forEach((genre) => {
+        orgGenres.push(genre.value);
+      });
+    }
+    const event = { name, website, imageURL, genres: orgGenres };
     if (!firebase.apps.length) {
       setUpFirebase();
     }
     if (key === '') {
-      ref.child('Web/Events').push(event, (err) => {
+      ref.child('Orgs/').push(event, (err) => {
         if (err) {
           notificationSystem({ message: err, level: 'error' });
         } else {
-          notificationSystem({ message: 'Event has been added successfully!', level: 'success' });
+          notificationSystem({ message: 'Organization has been added successfully!', level: 'success' });
         }
       });
     } else if (key && key !== '') {
-      ref.child(`Web/Events/${key}`).set(event, (err) => {
+      ref.child(`Orgs/${key}`).set(event, (err) => {
         if (err) {
           notificationSystem({ message: err, level: 'error' });
         } else {
-          notificationSystem({ message: 'Event has been edited successfully!', level: 'success' });
+          notificationSystem({ message: 'Organization has been edited successfully!', level: 'success' });
         }
       });
       clearSelected();
     } else {
       notificationSystem({ message: 'There\'s been an error saving that data.', level: 'error' });
     }
-    this.resetState();
-    */
+    this.resetState().then(() => {
+      if (!firebase.apps.length) {
+        setUpFirebase();
+      }
+      ref.child('Orgs/').once('value').then((snapshot) => {
+        // eslint-disable-next-line react/destructuring-assignment
+        this.props.setOrgs(snapshot.val());
+      });
+    });
   }
 
   handleUploadStart = () => this.setState({ isUploading: true, progress: 0 });
@@ -158,15 +161,8 @@ class OrgForm extends Component {
   }
 
   render() {
-    const {
-      name,
-      website,
-      imageURL,
-      genres,
-      key,
-      isUploading,
-      progress,
-    } = this.state;
+    const { clearSelected } = this.props;
+    const { name, website, imageURL, genres, key, isUploading, progress } = this.state;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
@@ -183,83 +179,89 @@ class OrgForm extends Component {
                 title={(key && key !== '') ? 'Edit Organization' : 'New Organization'}
                 content={(
                   <div>
-                    <FormInputs
-                      ncols={['col-md-12']}
-                      proprieties={[
-                        {
-                          label: 'Organization Name',
-                          type: 'text',
-                          bsClass: 'form-control',
-                          placeholder: 'Title',
-                          value: name,
-                          onChange: e => this.setState({ name: e.target.value }),
-                        },
-                      ]}
-                    />
-                    <FormInputs
-                      ncols={['col-md-12']}
-                      proprieties={[
-                        {
-                          label: 'Event Subtitle',
-                          type: 'text',
-                          bsClass: 'form-control',
-                          placeholder: 'Subtitle',
-                          value: website,
-                          onChange: e => this.setState({ website: e.target.value }),
-                        },
-                      ]}
-                    />
-                    <FormGroup>
-                      <ControlLabel>Category</ControlLabel>
-                      <Select
-                        options={categories}
-                        styles={customStyles}
-                        isMulti
-                        closeMenuOnSelect={false}
-                        value={genres}
-                        onChange={selected => this.handleChange(selected, 'genres')}
+                    <div>
+                      <FormInputs
+                        ncols={['col-md-12']}
+                        proprieties={[
+                          {
+                            label: 'Organization Name',
+                            type: 'text',
+                            bsClass: 'form-control',
+                            placeholder: 'Title',
+                            value: name,
+                            onChange: e => this.setState({ name: e.target.value }),
+                          },
+                        ]}
                       />
-                    </FormGroup>
-                    <FormGroup controlId="formControlsFile">
-                      <Col sm={4}>
-                        <ControlLabel>Image Upload</ControlLabel>
-                        <br />
-                        <label
-                          style={{
-                            backgroundColor: 'steelblue',
-                            color: 'white',
-                            padding: 10,
-                            borderRadius: 4,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Upload an Image
-                          <FileUploader
-                            hidden
-                            randomizeFilename
-                            accept="image/*"
-                            storageRef={this.storageRef}
-                            onUploadStart={this.handleUploadStart}
-                            onUploadError={this.handleUploadError}
-                            onUploadSuccess={this.handleUploadSuccess}
-                            onProgress={this.handleProgress}
-                          />
-                        </label>
-                      </Col>
-                      <Col sm={14}>
-                        {isUploading && (
-                          <p>
-                            Progress:
-                            {<Line percent={progress} strokeWidth="4" strokeColor="#D3D3D3" />}
-                          </p>
-                        )}
-                        {imageURL && <img alt=" " src={imageURL} width="200px" height="auto" style={{ paddingBottom: '25px' }} />}
-                      </Col>
-                    </FormGroup>
-                    <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
-                      {(key && key !== '') ? 'Update Event' : 'Submit Event'}
-                    </Button>
-                    <div className="clearfix" />
+                      <FormInputs
+                        ncols={['col-md-12']}
+                        proprieties={[
+                          {
+                            label: 'Organization Website',
+                            type: 'text',
+                            bsClass: 'form-control',
+                            placeholder: 'Subtitle',
+                            value: website,
+                            onChange: e => this.setState({ website: e.target.value }),
+                          },
+                        ]}
+                      />
+                      <FormGroup>
+                        <ControlLabel>Category</ControlLabel>
+                        <Select
+                          options={categories}
+                          styles={customStyles}
+                          isMulti
+                          closeMenuOnSelect={false}
+                          value={genres}
+                          onChange={selected => this.handleChange(selected, 'genres')}
+                        />
+                      </FormGroup>
+                      <FormGroup controlId="formControlsFile">
+                        <Col sm={4}>
+                          <ControlLabel>Image Upload</ControlLabel>
+                          <br />
+                          <label
+                            style={{
+                              backgroundColor: 'steelblue',
+                              color: 'white',
+                              padding: 10,
+                              borderRadius: 4,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Upload an Image
+                            <FileUploader
+                              hidden
+                              randomizeFilename
+                              accept="image/*"
+                              storageRef={this.storageRef}
+                              onUploadStart={this.handleUploadStart}
+                              onUploadError={this.handleUploadError}
+                              onUploadSuccess={this.handleUploadSuccess}
+                              onProgress={this.handleProgress}
+                            />
+                          </label>
+                        </Col>
+                        <Col sm={14}>
+                          {isUploading && (
+                            <p>
+                              Progress:
+                              {<Line percent={progress} strokeWidth="4" strokeColor="#D3D3D3" />}
+                            </p>
+                          )}
+                          {imageURL && <img alt=" " src={imageURL} width="200px" height="auto" style={{ paddingBottom: '25px' }} />}
+                        </Col>
+                      </FormGroup>
+                      <div className="clearfix" />
+                      <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
+                        {(key && key !== '') ? 'Update Org' : 'Create Org'}
+                      </Button>
+                      <Button bsStyle="default" pullRight fill type="submit" onClick={clearSelected}>
+                        Cancel
+                      </Button>
+                      <div className="clearfix" />
+                    </div>
                   </div>
                 )}
               />
@@ -275,4 +277,8 @@ const mapStateToProps = state => ({
   orgs: state.orgs.model,
 });
 
-export default connect(mapStateToProps)(OrgForm);
+const mapDispatchToProps = dispatch => bindActionCreators({
+  setOrgs,
+}, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(OrgForm);

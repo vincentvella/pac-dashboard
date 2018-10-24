@@ -118,7 +118,7 @@ class OrgForm extends Component {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({...event}),
+        body: JSON.stringify({ ...event }),
       }).then(() => {
         this.resetState().then(() => {
           notificationSystem({ message: 'User has been added successfully!', level: 'success' });

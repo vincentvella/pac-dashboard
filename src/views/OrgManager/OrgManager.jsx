@@ -1,22 +1,25 @@
-import React, { Component } from 'react';
-import '../../../node_modules/react-datetime/css/react-datetime.css';
-import connect from 'react-redux/es/connect/connect';
+/* eslint-disable no-nested-ternary */
 import firebase from 'firebase';
 import PropTypes from 'prop-types';
-import { Col, ListGroup, ListGroupItem, Row, Well, } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
-import { ref, setUpFirebase } from '../../api/firebase';
+import { Col, ListGroup, ListGroupItem, Row, Well } from 'react-bootstrap';
 import Card from '../../components/Card/Card';
 import { setOrgs } from '../../redux/actions/orgs';
 import OrgForm from '../../components/Forms/OrgForm';
+import { ref, setUpFirebase } from '../../api/firebase';
+import '../../../node_modules/react-datetime/css/react-datetime.css';
 
 class OrgManager extends Component {
   constructor(props) {
     super(props);
     this.state = {
       selected: '',
+      adding: false,
     };
     this.clearSelected = this.clearSelected.bind(this);
+    this.handleAdd = this.handleAdd.bind(this);
   }
 
   componentWillMount() {
@@ -29,13 +32,35 @@ class OrgManager extends Component {
     });
   }
 
-  clearSelected() {
-    this.setState({ selected: '' });
+  async clearSelected() {
+    await this.setState({ selected: '', adding: false }, () => {
+      if (!firebase.apps.length) {
+        setUpFirebase();
+      }
+      ref.child('Orgs/').once('value').then((snapshot) => {
+        // eslint-disable-next-line react/destructuring-assignment
+        this.props.setOrgs(snapshot.val());
+      });
+    });
+  }
+
+  handleAdd() {
+    this.clearSelected().then(() => {
+      this.setState({ adding: true }, () => {
+        if (!firebase.apps.length) {
+          setUpFirebase();
+        }
+        ref.child('Orgs/').once('value').then((snapshot) => {
+          // eslint-disable-next-line react/destructuring-assignment
+          this.props.setOrgs(snapshot.val());
+        });
+      });
+    });
   }
 
   render() {
     const { orgs, notificationSystem } = this.props;
-    const { selected } = this.state;
+    const { adding, selected } = this.state;
     let orgKeys = [];
     const propKeys = Object.keys(orgs);
     if (propKeys && propKeys.length && propKeys.length > 0) {
@@ -48,6 +73,8 @@ class OrgManager extends Component {
           <Col sm={8} md={8} lg={4}>
             <Card
               fill
+              add
+              addFunc={this.handleAdd}
               title="Organizations"
               badge={orgKeys.length}
               content={(
@@ -87,6 +114,11 @@ class OrgManager extends Component {
               ? (
                 <OrgForm
                   currentOrg={{ key: selected, ...orgs[selected] }}
+                  notificationSystem={notificationSystem}
+                  clearSelected={this.clearSelected}
+                />
+              ) : (adding) ? (
+                <OrgForm
                   notificationSystem={notificationSystem}
                   clearSelected={this.clearSelected}
                 />
