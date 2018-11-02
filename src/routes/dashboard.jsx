@@ -52,7 +52,7 @@ const dashboardRoutes = [
     name: 'Web Scraper',
     icon: 'pe-7s-science',
     component: EventScraper,
-    authLevels: [0, 1],
+    authLevels: [0],
 
   },
   {
@@ -60,14 +60,14 @@ const dashboardRoutes = [
     name: 'God Mode',
     icon: 'pe-7s-gleam',
     component: Dashboard,
-    authLevels: [0, 1],
+    authLevels: [0],
   },
   {
     path: '/feedback',
     name: 'Read Feedback',
     icon: 'pe-7s-comment',
     component: Dashboard,
-    authLevels: [0, 1],
+    authLevels: [0],
   },
   {
     path: '/user',

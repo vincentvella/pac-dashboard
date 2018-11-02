@@ -4,7 +4,7 @@ export const auth = (email, pw) => {
   if (!authRef) {
     setUpFirebase();
   }
-  return authRef().signInWithEmailAndPassword(email, pw);
+  return authRef.signInWithEmailAndPassword(email, pw);
 }
 
 export const getUserInfo = async (uid) => {

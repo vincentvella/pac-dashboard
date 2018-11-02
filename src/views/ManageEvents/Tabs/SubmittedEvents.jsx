@@ -44,9 +44,11 @@ class SubmittedEvents extends Component {
     const { pendingEvents, notificationSystem} = this.props;
     const { selected } = this.state;
     let eventKeys = [];
-    const propKeys = Object.keys(this.props.pendingEvents);
-    if (propKeys && propKeys.length && propKeys.length > 0) {
-      eventKeys = propKeys;
+    if (pendingEvents) {
+      const propKeys = Object.keys(pendingEvents);
+      if (propKeys && propKeys.length && propKeys.length > 0) {
+        eventKeys = propKeys;
+      }
     }
 
     return (

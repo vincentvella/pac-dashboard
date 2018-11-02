@@ -9,7 +9,7 @@ import Card from '../Card/Card';
 import { FormInputs } from '../FormInputs/FormInputs';
 import Button from '../CustomButton/CustomButton';
 import '../../../node_modules/react-datetime/css/react-datetime.css';
-import { ref, setUpFirebase } from '../../api/firebase';
+import { ref, setUpFirebase, authRef } from '../../api/firebase';
 import { bindActionCreators } from "redux";
 import { setUsers } from "../../redux/actions/users";
 
@@ -37,7 +37,10 @@ class OrgForm extends Component {
         // eslint-disable-next-line arrow-body-style,react/prop-types
         mappedOrgs = props.currentUser.orgs.map((org) => {
           const userOrg = props.allOrgs[org];
-          return { value: org, label: userOrg.name };
+          if (userOrg && userOrg.name) {
+            return { value: org, label: userOrg.name };
+          }
+          return null;
         });
       }
       this.initialState = {
@@ -70,7 +73,10 @@ class OrgForm extends Component {
           // eslint-disable-next-line arrow-body-style,react/prop-types
           mappedOrgs = nextProps.currentUser.orgs.map((org) => {
             const userOrg = nextProps.allOrgs[org];
-            return { value: org, label: userOrg.name };
+            if (userOrg && userOrg.name) {
+              return { value: org, label: userOrg.name };
+            }
+            return null;
           });
         }
         this.setState({
@@ -134,7 +140,7 @@ class OrgForm extends Component {
     ref.child('/Web/Users').once('value').then((snapshot) => {
       // eslint-disable-next-line react/destructuring-assignment
       this.props.setUsers(snapshot.val());
-    });
+    })
   }
 
   handleChange(selectedOptions, state) {
@@ -148,16 +154,8 @@ class OrgForm extends Component {
   }
 
   render() {
-    const {
-      email,
-      orgs,
-      permissionLevel,
-      key,
-    } = this.state;
-    const {
-      allOrgs,
-      clearSelected,
-    } = this.props;
+    const { email, orgs, permissionLevel, key } = this.state;
+    const { allOrgs, clearSelected } = this.props;
     const selectableOrgs = Object.keys(allOrgs).map(org => (
       { value: org, label: allOrgs[org].name }
     )) || [];
@@ -223,6 +221,9 @@ class OrgForm extends Component {
                     )}
                     <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
                       {(key && key !== '') ? 'Update User' : 'Submit User'}
+                    </Button>
+                    <Button bsStyle="default" pullRight fill type="submit" onClick={authRef.sendPasswordResetEmail(email)}>
+                      Reset Password
                     </Button>
                     <Button bsStyle="default" pullRight fill type="submit" onClick={clearSelected}>
                       Cancel

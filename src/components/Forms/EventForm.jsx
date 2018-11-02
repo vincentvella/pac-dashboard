@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/label-has-for */
 import React, { Component, Fragment } from 'react';
-import { Grid, Row, Col, FormGroup, ControlLabel, FormControl, Radio } from 'react-bootstrap';
+import { Row, Col, FormGroup, ControlLabel, FormControl, Radio } from 'react-bootstrap';
 import Select from 'react-select';
 import DateTimeField from 'react-datetime';
 import connect from 'react-redux/es/connect/connect';
@@ -30,8 +30,8 @@ class EventForm extends Component {
       description: '',
       free: 'free',
       available: 'yes',
-      startDateTime: new Date(),
-      endDateTime: new Date(),
+      startDateTime: new Date().setHours(0, 0, 0, 0),
+      endDateTime: new Date().setHours(0, 0, 0, 0),
       link: '',
       ticketDetails: '',
       category: [],
@@ -46,15 +46,13 @@ class EventForm extends Component {
     if (props.currentEvent) {
       this.initialState = {
         ...props.currentEvent,
-        startDateTime: new Date(props.currentEvent.startDateTime),
-        endDateTime: new Date(props.currentEvent.endDateTime),
+        startDateTime: (props.currentEvent.startDateTime && new Date(props.currentEvent.startDateTime)) || new Date().setHours(0, 0, 0, 0),
+        endDateTime: (props.currentEvent.endDateTime && new Date(props.currentEvent.endDateTime)) || new Date().setHours(0, 0, 0, 0),
+        ticketDetails: props.ticketDetails || '',
         free: props.currentEvent.free === 0 ? 'free' : 'paid',
         available: props.currentEvent.available === 0 ? 'yes' : 'no',
-        link: props.currentEvent.ticketLink
-          ? props.currentEvent.ticketLink : props.currentEvent.link,
+        link: props.currentEvent.ticketLink ? props.currentEvent.ticketLink : props.currentEvent.link || '',
       };
-    }
-    if (props.currentEvent) {
       this.state = {
         ...this.initialState,
       };
@@ -67,9 +65,10 @@ class EventForm extends Component {
       setUpFirebase();
     }
     this.storageRef = storageRef;
+    this.onSubmit = this.onSubmit.bind(this);
+    this.onDecline = this.onDecline.bind(this);
     this.resetState = this.resetState.bind(this);
     this.handleChange = this.handleChange.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
     this.handleUploadError = this.handleUploadError.bind(this);
     this.handleUploadStart = this.handleUploadStart.bind(this);
     this.handleProgress = this.handleProgress.bind(this);
@@ -81,23 +80,40 @@ class EventForm extends Component {
       this.resetState().then(() => {
         this.setState({
           ...nextProps.currentEvent,
-          startDateTime: new Date(nextProps.currentEvent.startDateTime),
-          endDateTime: new Date(nextProps.currentEvent.endDateTime),
+          startDateTime: (nextProps.currentEvent.startDateTime && new Date(nextProps.currentEvent.startDateTime)) || new Date().setHours(0, 0, 0, 0),
+          endDateTime: (nextProps.currentEvent.endDateTime && new Date(nextProps.currentEvent.endDateTime)) || new Date().setHours(0, 0, 0, 0),
           free: nextProps.currentEvent.free === 0 ? 'free' : 'paid',
           available: nextProps.currentEvent.available === 0 ? 'yes' : 'no',
-          link: nextProps.currentEvent.ticketLink ?
-            nextProps.currentEvent.ticketLink : nextProps.currentEvent.link,
+          ticketDetails: nextProps.currentEvent || '',
+          link: nextProps.currentEvent.ticketLink ? nextProps.currentEvent.ticketLink : nextProps.currentEvent.link || '',
         });
       });
     }
   }
 
+  onDecline() {
+    const { key } = this.state;
+    const { notificationSystem, clearSelected } = this.props;
+    if (!firebase.apps.length) {
+      setUpFirebase();
+    }
+    ref.child(`Web/Events/${key}`).remove((error) => {
+      if (error) {
+        notificationSystem({ message: error, level: 'error' });
+      } else {
+        clearSelected();
+      }
+    });
+    this.resetState();
+  }
+
   onSubmit() {
     const {
       title, subtitle, description, free, available, startDateTime, endDateTime, link,
-      ticketDetails,category, orgs, location, url, key,
+      ticketDetails, category, orgs, location, url, key,
     } = this.state;
-    const { notificationSystem, clearSelected, review } = this.props
+    const { notificationSystem, clearSelected, review, legacyTransitioner } = this.props;
+
     const event = {
       title,
       subtitle,
@@ -127,10 +143,50 @@ class EventForm extends Component {
         if (err) {
           notificationSystem({ message: err, level: 'error' });
         } else {
-          notificationSystem({ message: 'You\'ve approved an event, it\'s now in the mobile app!', level: 'success' });
+          ref.child(`Web/Events/${key}`).remove((error) => {
+            if (error) {
+              notificationSystem({ message: error, level: 'error' });
+            } else {
+              clearSelected();
+              notificationSystem({
+                message: 'You\'ve approved an event, it\'s now in the mobile app!',
+                level: 'success'
+              });
+            }
+          });
         }
       });
-    } else {
+    } else if (legacyTransitioner) {
+      if (key === '') {
+        ref.child('Web/Events').push(event, (err) => {
+          if (err) {
+            notificationSystem({ message: err, level: 'error' });
+          } else {
+            notificationSystem({
+              message: 'Event has been added successfully and a key was generated!',
+              level: 'success'
+            });
+          }
+        });
+      } else if (key && key !== '') {
+        ref.child(`Web/Events/${key}`).set(event, (err) => {
+          if (err) {
+            notificationSystem({ message: err, level: 'error' });
+          } else {
+            ref.child(`/Events/${key}`).remove((error) => {
+              if (error) {
+                notificationSystem({ message: error, level: 'error' });
+              } else {
+                clearSelected();
+                notificationSystem({ message: 'Event has been created successfully!', level: 'success' });
+              }
+            });
+          }
+        });
+      } else {
+        notificationSystem({ message: 'There\'s been an error saving that data.', level: 'error' });
+      }
+    } else { // Regular add form
       if (key === '') {
         ref.child('Web/Events').push(event, (err) => {
           if (err) {
@@ -205,7 +261,7 @@ class EventForm extends Component {
       progress,
       url,
     } = this.state;
-    const {review} = this.props;
+    const { review } = this.props;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
@@ -213,251 +269,263 @@ class EventForm extends Component {
       { value: 'Music/Instrumental', label: 'Music/Instrumental' },
       { value: 'Writing', label: 'Writing' },
     ];
-    const orgOptions = Object.keys(this.props.orgs).map(orgKey => ({
-      value: orgKey,
-      label: this.props.orgs[orgKey].name,
-    }));
+    const orgOptions = Object.keys(this.props.orgs).map((orgKey) => {
+      if (orgKey && this.props.orgs && this.props.orgs[orgKey] && this.props.orgs[orgKey].name) {
+        return {
+          value: orgKey,
+          label: this.props.orgs[orgKey].name,
+        };
+      }
+      return null;
+    });
     return (
       <div className="content">
-        <Grid>
-          <Row>
-            <Col sm={18} md={12} lg={12}>
-              <Card
-                title={(key && key !== '') ? 'Edit Event' : 'New Event'}
-                content={(
-                  <div>
-                    <FormInputs
-                      ncols={['col-md-12']}
-                      proprieties={[
-                        {
-                          label: 'Event Title',
-                          type: 'text',
-                          bsClass: 'form-control',
-                          placeholder: 'Title',
-                          value: title,
-                          onChange: e => this.setState({ title: e.target.value }),
-                        },
-                      ]}
-                    />
-                    <FormInputs
-                      ncols={['col-md-12']}
-                      proprieties={[
-                        {
-                          label: 'Event Subtitle',
-                          type: 'text',
-                          bsClass: 'form-control',
-                          placeholder: 'Subtitle',
-                          value: subtitle,
-                          onChange: e => this.setState({ subtitle: e.target.value }),
-                        },
-                      ]}
-                    />
-                    <Row>
-                      <Col md={12}>
-                        <FormGroup controlId="formControlsTextarea">
-                          <ControlLabel>Event Description</ControlLabel>
-                          <FormControl
-                            rows="5"
-                            componentClass="textarea"
-                            bsClass="form-control"
-                            placeholder="Describe your event..."
-                            value={description}
-                            onChange={e => this.setState({ description: e.target.value })}
-                          />
-                        </FormGroup>
-                      </Col>
-                    </Row>
+        <Col sm={16} md={10} lg={10}>
+          <Card
+            title={review ? 'Review Event' : (key && key !== '') ? 'Edit Event' : 'New Event'}
+            content={(
+              <div>
+                <FormInputs
+                  ncols={['col-md-12']}
+                  proprieties={[
+                    {
+                      readOnly: review,
+                      label: 'Event Title',
+                      type: 'text',
+                      bsClass: 'form-control',
+                      placeholder: 'Title',
+                      value: title,
+                      onChange: e => this.setState({ title: e.target.value }),
+                    },
+                  ]}
+                />
+                <FormInputs
+                  ncols={['col-md-12']}
+                  proprieties={[
+                    {
+                      readOnly: review,
+                      label: 'Event Subtitle',
+                      type: 'text',
+                      bsClass: 'form-control',
+                      placeholder: 'Subtitle',
+                      value: subtitle,
+                      onChange: e => this.setState({ subtitle: e.target.value }),
+                    },
+                  ]}
+                />
+                <Row>
+                  <Col md={12}>
+                    <FormGroup controlId="formControlsTextarea">
+                      <ControlLabel>Event Description</ControlLabel>
+                      <FormControl
+                        readOnly={review}
+                        rows="5"
+                        componentClass="textarea"
+                        style={{ resize: 'vertical' }}
+                        bsClass="form-control"
+                        placeholder="Describe your event..."
+                        value={description}
+                        onChange={e => this.setState({ description: e.target.value })}
+                      />
+                    </FormGroup>
+                  </Col>
+                </Row>
+                <Row styles={{ alignItems: 'center' }}>
+                  <Col sm={6} md={6} smPush={1}>
                     <FormGroup controlId="formControlsTextarea">
                       <ControlLabel>Event Start Date/Time</ControlLabel>
                       <DateTimeField
-                        onChange={newVal => this.setState({ startDateTime: newVal.toDate() })}
+                        input={false}
+                        inputProps={{ disabled: review }}
+                        onChange={newVal => (this.props.legacyTransitioner ? this.setState({ startDateTime: newVal.toDate() }) : null)}
                         value={startDateTime}
                       />
                     </FormGroup>
+                  </Col>
+                  <Col sm={6} md={6} smPush={1}>
                     <FormGroup controlId="formControlsTextarea">
                       <ControlLabel>Event End Date/Time</ControlLabel>
                       <DateTimeField
-                        onChange={newVal => this.setState({ endDateTime: newVal.toDate() })}
+                        input={false}
+                        inputProps={{ disabled: review }}
+                        onChange={newVal => (this.props.legacyTransitioner ? this.setState({ endDateTime: newVal.toDate() }) : null)}
                         value={endDateTime}
                       />
                     </FormGroup>
+                  </Col>
+                </Row>
+                <FormGroup>
+                  <ControlLabel>Free Event?</ControlLabel>
+                  <div>
+                    <Radio
+                      disabled={review}
+                      name="radioGroup"
+                      inline
+                      value="free"
+                      checked={free === 'free'}
+                      onChange={e => this.updateRadioState(e, 'free')}
+                    >
+                      Yes
+                    </Radio>
+                    {' '}
+                    <Radio
+                      disabled={review}
+                      name="radioGroup"
+                      inline
+                      value="paid"
+                      checked={free === 'paid'}
+                      onChange={e => this.updateRadioState(e, 'free')}
+                    >
+                      No
+                    </Radio>
+                    {' '}
+                  </div>
+                </FormGroup>
+                {(free && free === 'paid') && (
+                  <div>
                     <FormGroup>
-                      <ControlLabel>Free Event?</ControlLabel>
+                      <ControlLabel>Tickets Available At Door?</ControlLabel>
                       <div>
                         <Radio
-                          name="radioGroup"
+                          disabled={review}
+                          name="radioGroup1"
                           inline
-                          value="free"
-                          checked={free === 'free'}
-                          onChange={e => this.updateRadioState(e, 'free')}
+                          value="yes"
+                          checked={available === 'yes'}
+                          onChange={e => this.updateRadioState(e, 'available')}
                         >
                           Yes
                         </Radio>
                         {' '}
                         <Radio
-                          name="radioGroup"
+                          disabled={review}
+                          name="radioGroup1"
                           inline
-                          value="paid"
-                          checked={free === 'paid'}
-                          onChange={e => this.updateRadioState(e, 'free')}
+                          value="no"
+                          checked={available === 'no'}
+                          onChange={e => this.updateRadioState(e, 'available')}
                         >
                           No
                         </Radio>
                         {' '}
                       </div>
                     </FormGroup>
-                    {free
-                    && free === 'paid' && (
-                      <div>
-                        <FormGroup>
-                          <ControlLabel>Tickets Available At Door?</ControlLabel>
-                          <div>
-                            <Radio
-                              name="radioGroup1"
-                              inline
-                              value="yes"
-                              checked={available === 'yes'}
-                              onChange={e => this.updateRadioState(e, 'available')}
-                            >
-                              Yes
-                            </Radio>
-                            {' '}
-                            <Radio
-                              name="radioGroup1"
-                              inline
-                              value="no"
-                              checked={available === 'no'}
-                              onChange={e => this.updateRadioState(e, 'available')}
-                            >
-                              No
-                            </Radio>
-                            {' '}
-                          </div>
+                    <Row>
+                      <Col md={12}>
+                        <FormGroup controlId="formControlsTextarea">
+                          <ControlLabel>Ticket Details</ControlLabel>
+                          <FormControl
+                            readOnly={review}
+                            rows="5"
+                            componentClass="textarea"
+                            style={{ resize: 'vertical' }}
+                            bsClass="form-control"
+                            placeholder="Please be as detailed as possible (children, student discounts, general admission, etc...)"
+                            value={ticketDetails}
+                            onChange={e => this.setState({ ticketDetails: e.target.value })}
+                          />
                         </FormGroup>
-                        <Row>
-                          <Col md={12}>
-                            <FormGroup controlId="formControlsTextarea">
-                              <ControlLabel>Ticket Details</ControlLabel>
-                              <FormControl
-                                rows="5"
-                                componentClass="textarea"
-                                bsClass="form-control"
-                                placeholder="Please be as detailed as possible (children, student discounts, general admission, etc...)"
-                                value={ticketDetails}
-                                onChange={e => this.setState({ ticketDetails: e.target.value })}
-                              />
-                            </FormGroup>
-                          </Col>
-                        </Row>
-                        <FormInputs
-                          ncols={['col-md-12']}
-                          proprieties={[
-                            {
-                              label: 'Ticket Link',
-                              type: 'text',
-                              bsClass: 'form-control',
-                              placeholder: 'https://oss.ticketmaster.com/aps/psuarts/...',
-                              value: link,
-                              onChange: e => this.setState({ link: e.target.value }),
-                            },
-                          ]}
-                        />
-                      </div>
-                    )}
-                    <FormGroup>
-                      <ControlLabel>Performing Organization(s)</ControlLabel>
-                      <Select
-                        options={orgOptions}
-                        styles={customStyles}
-                        isMulti
-                        closeMenuOnSelect={false}
-                        value={orgs}
-                        onChange={selected => this.handleChange(selected, 'orgs')}
-                      />
-                    </FormGroup>
-                    <FormGroup>
-                      <ControlLabel>Category</ControlLabel>
-                      <Select
-                        options={categories}
-                        styles={customStyles}
-                        isMulti
-                        closeMenuOnSelect={false}
-                        value={category}
-                        onChange={selected => this.handleChange(selected, 'category')}
-                      />
-                    </FormGroup>
+                      </Col>
+                    </Row>
                     <FormInputs
                       ncols={['col-md-12']}
                       proprieties={[
                         {
-                          label: 'Location',
+                          readOnly: review,
+                          label: 'Ticket Link',
                           type: 'text',
                           bsClass: 'form-control',
-                          placeholder: 'Add a location so people know where to show up...',
-                          value: location,
-                          onChange: e => this.setState({ location: e.target.value }),
+                          placeholder: 'https://oss.ticketmaster.com/aps/psuarts/...',
+                          value: link,
+                          onChange: e => this.setState({ link: e.target.value }),
                         },
                       ]}
                     />
-                    <FormGroup controlId="formControlsFile">
-                      <Col sm={4}>
-                        <ControlLabel>Image Upload</ControlLabel>
-                        <br />
-                        <label
-                          style={{
-                            backgroundColor: 'steelblue',
-                            color: 'white',
-                            padding: 10,
-                            borderRadius: 4,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Upload an Image
-                          <FileUploader
-                            hidden
-                            randomizeFilename
-                            accept="image/*"
-                            storageRef={this.storageRef}
-                            onUploadStart={this.handleUploadStart}
-                            onUploadError={this.handleUploadError}
-                            onUploadSuccess={this.handleUploadSuccess}
-                            onProgress={this.handleProgress}
-                          />
-                        </label>
-                      </Col>
-                      <Col sm={14}>
-                        {isUploading && (
-                          <p>
-                            Progress:
-                            {<Line percent={progress} strokeWidth="4" strokeColor="#D3D3D3" />}
-                          </p>
-                        )}
-                        {url && <img alt=" " src={url} width="200px" height="auto" style={{ paddingBottom: '25px' }} />}
-                      </Col>
-                    </FormGroup>
-                    <div className="clearfix" />
-                    {review
-                      ? (
-                        <Fragment>
-                          <Button bsStyle="success" pullRight btnLeftSpacing fill type="submit" onClick={this.onSubmit}>
-                            Approve
-                          </Button>
-                          <Button bsStyle="danger" pullRight fill type="submit" onClick={this.onSubmit}>
-                            Decline
-                          </Button>
-                        </Fragment>)
-                      : (
-                        <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
-                          {(key && key !== '') ? 'Update Event' : 'Submit Event'}
-                        </Button>)}
-                    <div className="clearfix" />
                   </div>
                 )}
+                <FormGroup>
+                  <ControlLabel>Performing Organization(s)</ControlLabel>
+                  <Select
+                    isDisabled={review}
+                    options={orgOptions}
+                    styles={customStyles}
+                    isMulti
+                    closeMenuOnSelect={false}
+                    value={orgs}
+                    onChange={selected => this.handleChange(selected, 'orgs')}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <ControlLabel>Category</ControlLabel>
+                  <Select
+                    isDisabled={review}
+                    options={categories}
+                    styles={customStyles}
+                    isMulti
+                    closeMenuOnSelect={false}
+                    value={category}
+                    onChange={selected => this.handleChange(selected, 'category')}
+                  />
+                </FormGroup>
+                <FormInputs
+                  ncols={['col-md-12']}
+                  proprieties={[
+                    {
+                      readOnly: review,
+                      label: 'Location',
+                      type: 'text',
+                      bsClass: 'form-control',
+                      placeholder: 'Add a location so people know where to show up...',
+                      value: location,
+                      onChange: e => this.setState({ location: e.target.value }),
+                    },
+                  ]}
+                />
+                <FormGroup controlId="formControlsFile">
+                  <Col sm={4}>
+                    <ControlLabel>Image Upload</ControlLabel>
+                    <FileUploader
+                      disabled={review}
+                      randomizeFilename
+                      accept="image/*"
+                      storageRef={this.storageRef}
+                      onUploadStart={this.handleUploadStart}
+                      onUploadError={this.handleUploadError}
+                      onUploadSuccess={this.handleUploadSuccess}
+                      onProgress={this.handleProgress}
+                    />
+                  </Col>
+                  <Col sm={14}>
+                    {isUploading && (
+                      <p>
+                        Progress:
+                        {<Line percent={progress} strokeWidth="4" strokeColor="#D3D3D3" />}
+                      </p>
+                    )}
+                    {url && <img alt=" " src={url} width="200px" height="auto" style={{ paddingBottom: '25px' }} />}
+                  </Col>
+                </FormGroup>
+                <div className="clearfix" />
+                {review
+                  ? (
+                    <Fragment>
+                      <Button bsStyle="success" pullRight btnLeftSpacing fill type="submit" onClick={this.onSubmit}>
+                        Approve
+                      </Button>
+                      <Button bsStyle="danger" pullRight fill type="submit" onClick={this.onDecline}>
+                        Decline
+                      </Button>
+                    </Fragment>)
+                  : (
+                    <Button bsStyle="primary" pullRight fill type="submit" onClick={this.onSubmit}>
+                      {(key && key !== '') ? 'Update Event' : 'Submit Event'}
+                    </Button>)}
+                <div className="clearfix" />
+              </div>
+            )}
 
-              />
-            </Col>
-          </Row>
-        </Grid>
+          />
+        </Col>
       </div>
     );
   }

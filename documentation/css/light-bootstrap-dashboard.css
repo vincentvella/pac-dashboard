@@ -442,7 +442,7 @@ body > .navbar-collapse[data-color="purple"]:after {
   .main-panel > .content {
     padding: 30px 15px;
     min-height: calc(100% - 123px);
-    height: 100%;}
+    height: calc(100% - 123px);}
   .main-panel > .footer {
     border-top: 1px solid #e7e7e7; }
   .main-panel .navbar {

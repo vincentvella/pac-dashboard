@@ -23,6 +23,6 @@ export const setUpFirebase = () => {
   const bucket = firebase.storage().ref('images');
 
   ref = db.ref();
-  authRef = firebase.auth;
+  authRef = firebase.auth();
   storageRef = bucket;
 };
