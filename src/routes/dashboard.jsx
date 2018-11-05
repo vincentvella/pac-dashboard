@@ -10,6 +10,7 @@ import ManageEvents from '../views/ManageEvents/ManageEvents';
 import OrgManager from '../views/OrgManager/OrgManager';
 import UserManager from '../views/UserManager/UserManager';
 import EventScraper from '../views/Scraper/EventScraper';
+import GodMode from '../views/GodMode/GodMode';
 
 const dashboardRoutes = [
   {
@@ -59,8 +60,8 @@ const dashboardRoutes = [
     path: '/god',
     name: 'God Mode',
     icon: 'pe-7s-gleam',
-    component: Dashboard,
-    authLevels: [0],
+    component: GodMode,
+    authLevels: [0, 1],
   },
   {
     path: '/feedback',

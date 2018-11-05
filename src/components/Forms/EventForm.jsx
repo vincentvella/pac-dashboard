@@ -84,7 +84,7 @@ class EventForm extends Component {
           endDateTime: (nextProps.currentEvent.endDateTime && new Date(nextProps.currentEvent.endDateTime)) || new Date().setHours(0, 0, 0, 0),
           free: nextProps.currentEvent.free === 0 ? 'free' : 'paid',
           available: nextProps.currentEvent.available === 0 ? 'yes' : 'no',
-          ticketDetails: nextProps.currentEvent || '',
+          ticketDetails: nextProps.currentEvent.ticketDetails || '',
           link: nextProps.currentEvent.ticketLink ? nextProps.currentEvent.ticketLink : nextProps.currentEvent.link || '',
         });
       });
@@ -93,17 +93,27 @@ class EventForm extends Component {
 
   onDecline() {
     const { key } = this.state;
-    const { notificationSystem, clearSelected } = this.props;
+    const { notificationSystem, clearSelected, god } = this.props;
     if (!firebase.apps.length) {
       setUpFirebase();
     }
-    ref.child(`Web/Events/${key}`).remove((error) => {
-      if (error) {
-        notificationSystem({ message: error, level: 'error' });
-      } else {
-        clearSelected();
-      }
-    });
+    if (god) {
+      ref.child(`Mobile/Events/${key}`).remove((error) => {
+        if (error) {
+          notificationSystem({ message: error, level: 'error' });
+        } else {
+          clearSelected();
+        }
+      });
+    } else {
+      ref.child(`Web/Events/${key}`).remove((error) => {
+        if (error) {
+          notificationSystem({ message: error, level: 'error' });
+        } else {
+          clearSelected();
+        }
+      });
+    }
     this.resetState();
   }
 
@@ -112,7 +122,7 @@ class EventForm extends Component {
       title, subtitle, description, free, available, startDateTime, endDateTime, link,
       ticketDetails, category, orgs, location, url, key,
     } = this.state;
-    const { notificationSystem, clearSelected, review, legacyTransitioner, scraper } = this.props;
+    const { notificationSystem, clearSelected, review, legacyTransitioner, scraper, god } = this.props;
 
     const event = {
       title,
@@ -210,6 +220,24 @@ class EventForm extends Component {
           });
         }
       });
+    } else if (god) {
+      let approvedEvent = {};
+      Object.keys(event).forEach((e) => {
+        if (e && event[e]) {
+          approvedEvent = { ...approvedEvent, [e]: event[e] };
+        }
+      });
+      ref.child(`Mobile/Events/${key}`).set(approvedEvent, (err) => {
+        if (err) {
+          notificationSystem({ message: err, level: 'error' });
+        } else {
+          clearSelected();
+          notificationSystem({
+            message: 'You\'ve directly edited an in-app event!',
+            level: 'success',
+          });
+        }
+      });
     } else { // Regular add form
       if (key === '') {
         ref.child('Web/Events').push(event, (err) => {
@@ -285,7 +313,7 @@ class EventForm extends Component {
       progress,
       url,
     } = this.state;
-    const { review, scraper } = this.props;
+    const { review, scraper, god } = this.props;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
@@ -530,14 +558,14 @@ class EventForm extends Component {
                   </Col>
                 </FormGroup>
                 <div className="clearfix" />
-                {(review || scraper)
+                {(review || scraper || god)
                   ? (
                     <Fragment>
                       <Button bsStyle="success" pullRight btnLeftSpacing fill type="submit" onClick={this.onSubmit}>
-                        Approve
+                        {god ? 'Update' : 'Approve'}
                       </Button>
                       <Button bsStyle="danger" pullRight fill type="submit" onClick={this.onDecline}>
-                        Decline
+                        {god ? 'Delete' : 'Decline'}
                       </Button>
                     </Fragment>)
                   : (

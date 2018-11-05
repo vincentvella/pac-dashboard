@@ -1,4 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable react/no-unescaped-entities,no-console,no-undef,react/destructuring-assignment,react/no-access-state-in-setstate,max-len*/
 import { Col, ListGroup, ListGroupItem, Panel, ProgressBar, Row, Well } from 'react-bootstrap';
 import React, { Component } from 'react';
 import firebase from 'firebase';
@@ -118,7 +118,7 @@ class EventScraper extends Component {
                   Click the button below to start the scraping process. This could take a couple
                   of seconds so feel free to grab a cup of coffee or something in the meantime!
                 </p>
-                <p>
+                <div>
                   <Button
                     fill
                     bsStyle="primary"
@@ -134,7 +134,7 @@ class EventScraper extends Component {
                   >
                     Start Scraper
                   </Button>
-                </p>
+                </div>
                 {scraping
                 && (
                   <ProgressBar

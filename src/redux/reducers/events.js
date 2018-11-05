@@ -11,6 +11,8 @@ const events = (state = initialState, action) => {
       return { ...state, model: { ...state.model, pending: action.data } };
     case 'SET_LEGACY_EVENTS':
       return { ...state, model: { ...state.model, legacy: action.data } };
+    case 'SET_MOBILE_EVENTS':
+      return { ...state, model: { ...state.model, mobile: action.data } };
     default:
       return state;
   }

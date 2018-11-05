@@ -45,7 +45,6 @@ Card.propTypes = {
   ctTableFullWidth: PropTypes.string,
   ctTableUpgrade: PropTypes.string,
   ctTableResponsive: PropTypes.string,
-  legend: PropTypes.string,
   stats: PropTypes.string,
   statsIcon: PropTypes.string,
   plain: PropTypes.string,
