@@ -112,7 +112,7 @@ class EventForm extends Component {
       title, subtitle, description, free, available, startDateTime, endDateTime, link,
       ticketDetails, category, orgs, location, url, key,
     } = this.state;
-    const { notificationSystem, clearSelected, review, legacyTransitioner } = this.props;
+    const { notificationSystem, clearSelected, review, legacyTransitioner, scraper } = this.props;
 
     const event = {
       title,
@@ -164,7 +164,7 @@ class EventForm extends Component {
           } else {
             notificationSystem({
               message: 'Event has been added successfully and a key was generated!',
-              level: 'success'
+              level: 'success',
             });
           }
         });
@@ -186,6 +186,30 @@ class EventForm extends Component {
       } else {
         notificationSystem({ message: 'There\'s been an error saving that data.', level: 'error' });
       }
+    } else if (scraper) {
+      let approvedEvent = {};
+      Object.keys(event).forEach((e) => {
+        if (e && event[e]) {
+          approvedEvent = { ...approvedEvent, [e]: event[e] };
+        }
+      });
+      ref.child(`Web/Events/${key}`).set(approvedEvent, (err) => {
+        if (err) {
+          notificationSystem({ message: err, level: 'error' });
+        } else {
+          ref.child(`/Scraped-Events/${key}`).set(this.props.currentEvent, (error) => {
+            if (error) {
+              notificationSystem({ message: error, level: 'error' });
+            } else {
+              clearSelected();
+              notificationSystem({
+                message: 'You\'ve scraped an event, it\'s now ready for approval for the app!',
+                level: 'success',
+              });
+            }
+          });
+        }
+      });
     } else { // Regular add form
       if (key === '') {
         ref.child('Web/Events').push(event, (err) => {
@@ -261,7 +285,7 @@ class EventForm extends Component {
       progress,
       url,
     } = this.state;
-    const { review } = this.props;
+    const { review, scraper } = this.props;
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
@@ -337,7 +361,7 @@ class EventForm extends Component {
                       <DateTimeField
                         input={false}
                         inputProps={{ disabled: review }}
-                        onChange={newVal => (this.props.legacyTransitioner ? this.setState({ startDateTime: newVal.toDate() }) : null)}
+                        onChange={newVal => (review ? null : this.setState({ startDateTime: newVal.toDate() }))}
                         value={startDateTime}
                       />
                     </FormGroup>
@@ -348,7 +372,7 @@ class EventForm extends Component {
                       <DateTimeField
                         input={false}
                         inputProps={{ disabled: review }}
-                        onChange={newVal => (this.props.legacyTransitioner ? this.setState({ endDateTime: newVal.toDate() }) : null)}
+                        onChange={newVal => (review ? null : this.setState({ endDateTime: newVal.toDate() }))}
                         value={endDateTime}
                       />
                     </FormGroup>
@@ -506,7 +530,7 @@ class EventForm extends Component {
                   </Col>
                 </FormGroup>
                 <div className="clearfix" />
-                {review
+                {(review || scraper)
                   ? (
                     <Fragment>
                       <Button bsStyle="success" pullRight btnLeftSpacing fill type="submit" onClick={this.onSubmit}>

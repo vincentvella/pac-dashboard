@@ -52,7 +52,7 @@ const dashboardRoutes = [
     name: 'Web Scraper',
     icon: 'pe-7s-science',
     component: EventScraper,
-    authLevels: [0],
+    authLevels: [0, 1],
 
   },
   {

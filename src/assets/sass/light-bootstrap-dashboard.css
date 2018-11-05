@@ -440,8 +440,7 @@ body > .navbar-collapse[data-color="purple"]:after {
   width: calc(100% - 260px); }
   .main-panel > .content {
     padding: 30px 15px;
-    min-height: calc(100% - 123px);
-    height: calc(100% - 61px); }
+    min-height: calc(100% - 123px); }
   .main-panel > .footer {
     border-top: 1px solid #e7e7e7; }
   .main-panel .navbar {
@@ -1875,7 +1874,7 @@ body > .navbar-collapse[data-color="purple"]:after {
     border-radius: 4px; }
 
 .fullPage {
-  height: calc(100% - 50px);
+  height: calc(100% - 150px);
   overflow-y: auto; }
 
 .card-stats .icon-big {

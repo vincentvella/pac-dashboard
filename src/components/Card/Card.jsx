@@ -16,7 +16,7 @@ export default function Card(props) {
           <Badge>{badge}</Badge>&nbsp;&nbsp;&nbsp;
           {add && <Button bsStyle="primary" fill onClick={addFunc}>Add New</Button>}
         </h4>
-        <p className="category">{category}</p>
+        <div className="category">{category}</div>
       </div>
       {content && <hr />}
       <div className={`content${ctAllIcons ? ' all-icons' : ''}${ctTableFullWidth ? ' table-full-width' : ''}${ctTableResponsive ? ' table-responsive' : ''}${ctTableUpgrade ? ' table-upgrade' : ''}`}>
