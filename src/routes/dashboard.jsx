@@ -18,7 +18,7 @@ const dashboardRoutes = [
     name: 'Dashboard',
     icon: 'pe-7s-graph',
     component: Dashboard,
-    authLevels: [0, 1, 2],
+    authLevels: [0, 1],
   },
   {
     path: '/event-add',

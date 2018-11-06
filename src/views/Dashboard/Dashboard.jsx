@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars,no-undef */
 import React, { Component } from 'react';
 import ChartistGraph from 'react-chartist';
 import { Grid, Row, Col } from 'react-bootstrap';
@@ -7,23 +8,26 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import Card from '../../components/Card/Card';
 import { StatsCard } from '../../components/StatsCard/StatsCard';
-import Tasks from '../../components/Tasks/Tasks';
+
 import {
-  dataPie,
-  legendPie,
   dataSales,
   optionsSales,
   responsiveSales,
-  legendSales,
-  dataBar,
-  optionsBar,
-  responsiveBar,
-  legendBar,
+  signInLegend,
+  createdLegend,
 } from '../../variables/Variables';
 import { ref, setUpFirebase } from '../../api/firebase';
 import { setOrgs } from '../../redux/actions/orgs';
 
 class Dashboard extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      userData: {},
+    };
+    this.getUserStats = this.getUserStats.bind(this);
+  }
+
   componentWillMount() {
     if (!firebase.apps.length) {
       setUpFirebase();
@@ -32,6 +36,13 @@ class Dashboard extends Component {
       // eslint-disable-next-line react/destructuring-assignment
       this.props.setOrgs(snapshot.val());
     });
+    this.getUserStats();
+  }
+
+  async getUserStats() {
+    const rawUserData = await fetch('https://pacalendar-api.herokuapp.com/api/users-summary');
+    const userData = await rawUserData.json();
+    this.setState({ userData });
   }
 
   createLegend = (json) => {
@@ -46,59 +57,94 @@ class Dashboard extends Component {
   };
 
   render() {
+    console.log('STATE', this.state);
+    const { userData } = this.state;
+    let creationData = {
+      labels: [],
+      series: [],
+    };
+    let signInData = {
+      labels: [],
+      series: [],
+    };
+    if (userData) {
+      if (userData.creation) {
+        const series = [Object.keys(userData.creation).map(timeKey => userData.creation[timeKey])];
+        creationData = {
+          labels: [],
+          series,
+        };
+      }
+      if (userData.signIn) {
+        const series = [Object.keys(userData.signIn).map(timeKey => userData.signIn[timeKey])];
+        signInData = {
+          labels: [],
+          series,
+        };
+      }
+    }
     return (
       <div className="content">
         <Grid fluid>
           <Row>
             <Col lg={3} sm={6}>
               <StatsCard
-                bigIcon={<i className="pe-7s-server text-warning" />}
-                statsText="Capacity"
-                statsValue="105GB"
+                bigIcon={<i className="fa fa-facebook-square text-primary" />}
+                statsText="Users"
+                statsValue={userData.facebook}
+                statsIcon={<i className="fa fa-calendar-o" />}
+                statsIconText="Last 90 days"
+              />
+            </Col>
+            <Col lg={3} sm={6}>
+              <StatsCard
+                bigIcon={<i className="fa fa-google-plus-square text-danger" />}
+                statsText="Users"
+                statsValue={userData.google}
+                statsIcon={<i className="fa fa-calendar-o" />}
+                statsIconText="Last 90 days"
+              />
+            </Col>
+            <Col lg={2} sm={4}>
+              <StatsCard
+                bigIcon={<i className="pe-7s-graph1 text-danger" />}
+                statsText="Errors"
+                statsValue="0"
+                statsIcon={<i className="fa fa-clock-o" />}
+                statsIconText="In the last 30 days"
+              />
+            </Col>
+            <Col lg={2} sm={3}>
+              <StatsCard
+                bigIcon={<i className="fa fa-apple text-default" />}
+                statsText="Downloads"
+                statsValue="162"
                 statsIcon={<i className="fa fa-refresh" />}
                 statsIconText="Updated now"
               />
             </Col>
-            <Col lg={3} sm={6}>
+            <Col lg={2} sm={3}>
               <StatsCard
-                bigIcon={<i className="pe-7s-wallet text-success" />}
-                statsText="Revenue"
-                statsValue="$1,345"
-                statsIcon={<i className="fa fa-calendar-o" />}
-                statsIconText="Last day"
-              />
-            </Col>
-            <Col lg={3} sm={6}>
-              <StatsCard
-                bigIcon={<i className="pe-7s-graph1 text-danger" />}
-                statsText="Errors"
-                statsValue="23"
-                statsIcon={<i className="fa fa-clock-o" />}
-                statsIconText="In the last hour"
-              />
-            </Col>
-            <Col lg={3} sm={6}>
-              <StatsCard
-                bigIcon={<i className="fa fa-twitter text-info" />}
-                statsText="Followers"
-                statsValue="+45"
+                bigIcon={<i className="fa fa-android text-success" />}
+                statsText="Downloads"
+                statsValue="95"
                 statsIcon={<i className="fa fa-refresh" />}
                 statsIconText="Updated now"
               />
             </Col>
           </Row>
           <Row>
-            <Col md={8}>
+            <Col md={6}>
               <Card
-                statsIcon="fa fa-history"
                 id="chartHours"
                 title="Users Behavior"
+                statsIcon="fa fa-calendar-o"
+                stats="Last 90 days"
                 category="24 Hours performance"
-                stats="Updated 3 minutes ago"
                 content={(
                   <div className="ct-chart">
                     <ChartistGraph
-                      data={dataSales}
+                      data={creationData}
                       type="Line"
                       options={optionsSales}
                       responsiveOptions={responsiveSales}
@@ -106,68 +152,30 @@ class Dashboard extends Component {
                   </div>
                 )}
                 legend={
-                  <div className="legend">{this.createLegend(legendSales)}</div>
+                  <div className="legend">{this.createLegend(createdLegend)}</div>
                 }
               />
             </Col>
-            <Col md={4}>
-              <Card
-                statsIcon="fa fa-clock-o"
-                title="Email Statistics"
-                category="Last Campaign Performance"
-                stats="Campaign sent 2 days ago"
-                content={(
-                  <div
-                    id="chartPreferences"
-                    className="ct-chart ct-perfect-fourth"
-                  >
-                    <ChartistGraph data={dataPie} type="Pie" />
-                  </div>
-                )}
-                legend={
-                  <div className="legend">{this.createLegend(legendPie)}</div>
-                }
-              />
-            </Col>
-          </Row>
-
-          <Row>
             <Col md={6}>
               <Card
-                id="chartActivity"
-                title="2014 Sales"
-                category="All products including Taxes"
-                stats="Data information certified"
-                statsIcon="fa fa-check"
+                id="chartHours"
+                title="Users Behavior"
+                category="24 Hours performance"
+                statsIcon="fa fa-calendar-o"
+                stats="Last 90 days"
                 content={(
                   <div className="ct-chart">
                     <ChartistGraph
-                      data={dataBar}
-                      type="Bar"
-                      options={optionsBar}
-                      responsiveOptions={responsiveBar}
+                      data={signInData}
+                      type="Line"
+                      options={optionsSales}
+                      responsiveOptions={responsiveSales}
                     />
                   </div>
                 )}
                 legend={
-                  <div className="legend">{this.createLegend(legendBar)}</div>
+                  <div className="legend">{this.createLegend(signInLegend)}</div>
                 }
-              />
-            </Col>
-
-            <Col md={6}>
-              <Card
-                title="Tasks"
-                category="Backend development"
-                stats="Updated 3 minutes ago"
-                statsIcon="fa fa-history"
-                content={(
-                  <div className="table-full-width">
-                    <table className="table">
-                      <Tasks />
-                    </table>
-                  </div>
-                )}
               />
             </Col>
           </Row>

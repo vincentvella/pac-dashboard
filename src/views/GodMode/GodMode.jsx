@@ -1,16 +1,15 @@
-import { Col, ListGroup, ListGroupItem, Panel, ProgressBar, Row, Well } from 'react-bootstrap';
-import React, { Component } from 'react';
+import moment from 'moment';
 import firebase from 'firebase';
-import ReactHtmlParser from 'react-html-parser';
-import { ref, setUpFirebase } from '../../api/firebase';
-import Button from '../../components/CustomButton/CustomButton';
+import { connect } from 'react-redux';
+import React, { Component } from 'react';
+import DateTimeField from 'react-datetime';
+import { bindActionCreators } from 'redux';
+import { Col, ListGroup, ListGroupItem, Panel, Row, Well } from 'react-bootstrap';
 import Card from '../../components/Card/Card';
+import { ref, setUpFirebase } from '../../api/firebase';
 import EventForm from '../../components/Forms/EventForm';
-import { bindActionCreators } from "redux";
-import { setMobileEvents } from "../../redux/actions/events";
-import {connect} from "react-redux";
-import DateTimeField from "react-datetime";
-import moment from "moment";
+import { setMobileEvents } from '../../redux/actions/events';
+import Button from '../../components/CustomButton/CustomButton';
 
 class GodMode extends Component {
   constructor(props) {
