@@ -122,6 +122,7 @@ class EventScraper extends Component {
                   <Button
                     fill
                     bsStyle="primary"
+                    type="submit"
                     disabled={scraping}
                     onClick={() => {
                       this.setState({ scraping: true, progress: 0 }, () => {
