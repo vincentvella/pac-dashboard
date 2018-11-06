@@ -162,7 +162,7 @@ class EventScraper extends Component {
             <Row className="show-grid">
               <Col sm={8} md={4} lg={4}>
                 <Card
-                  fill={events.length && events.length > 0}
+                  fill={events && events.length && events.length > 0}
                   title="Scraped Events"
                   badge={eventKeys.length}
                   style={{ height: 200, overflowY: 'scroll' }}

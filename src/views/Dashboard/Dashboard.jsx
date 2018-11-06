@@ -18,6 +18,7 @@ import {
 } from '../../variables/Variables';
 import { ref, setUpFirebase } from '../../api/firebase';
 import { setOrgs } from '../../redux/actions/orgs';
+import { setMobileEvents } from "../../redux/actions/events";
 
 class Dashboard extends Component {
   constructor(props) {
@@ -35,6 +36,9 @@ class Dashboard extends Component {
     ref.child('/Orgs').once('value').then((snapshot) => {
       // eslint-disable-next-line react/destructuring-assignment
       this.props.setOrgs(snapshot.val());
+    });
+    ref.child('/Mobile/Events').once('value').then((snapshot) => {
+      this.props.setMobileEvents(snapshot.val());
     });
     this.getUserStats();
   }
@@ -195,6 +199,7 @@ Dashboard.defaultProps = {
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   setOrgs,
+  setMobileEvents,
 }, dispatch);
 
 export default connect(null, mapDispatchToProps)(Dashboard);
