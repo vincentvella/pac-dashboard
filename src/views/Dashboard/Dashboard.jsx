@@ -118,7 +118,7 @@ class Dashboard extends Component {
                 statsIconText="In the last 30 days"
               />
             </Col>
-            <Col lg={2} sm={3}>
+            <Col lg={2} sm={4}>
               <StatsCard
                 bigIcon={<i className="fa fa-apple text-default" />}
                 statsText="Downloads"
@@ -127,7 +127,7 @@ class Dashboard extends Component {
                 statsIconText="Updated now"
               />
             </Col>
-            <Col lg={2} sm={3}>
+            <Col lg={2} sm={4}>
               <StatsCard
                 bigIcon={<i className="fa fa-android text-success" />}
                 statsText="Downloads"

@@ -342,18 +342,6 @@
     .navbar-fixed-top {
         -webkit-backface-visibility: hidden;
     }
-    #bodyClick {
-        height: 100%;
-        width: 100%;
-        position: fixed;
-        opacity: 0;
-        top: 0;
-        left: auto;
-        right: 250px;
-        content: "";
-        z-index: 9999;
-        overflow-x: hidden;
-    }
 
     .social-line .btn{
         margin: $margin-bottom;
