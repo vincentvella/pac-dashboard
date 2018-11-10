@@ -48,9 +48,6 @@ class EventForm extends Component {
         ...props.currentEvent,
         startDateTime: (props.currentEvent.startDateTime && new Date(props.currentEvent.startDateTime)) || new Date().setHours(0, 0, 0, 0),
         endDateTime: (props.currentEvent.endDateTime && new Date(props.currentEvent.endDateTime)) || new Date().setHours(0, 0, 0, 0),
-        ticketDetails: props.ticketDetails || '',
-        free: props.currentEvent.free === 0 ? 'free' : 'paid',
-        available: props.currentEvent.available === 0 ? 'yes' : 'no',
         link: props.currentEvent.ticketLink ? props.currentEvent.ticketLink : props.currentEvent.link || '',
       };
       this.state = {
@@ -82,9 +79,6 @@ class EventForm extends Component {
           ...nextProps.currentEvent,
           startDateTime: (nextProps.currentEvent.startDateTime && new Date(nextProps.currentEvent.startDateTime)) || new Date().setHours(0, 0, 0, 0),
           endDateTime: (nextProps.currentEvent.endDateTime && new Date(nextProps.currentEvent.endDateTime)) || new Date().setHours(0, 0, 0, 0),
-          free: nextProps.currentEvent.free === 0 ? 'free' : 'paid',
-          available: nextProps.currentEvent.available === 0 ? 'yes' : 'no',
-          ticketDetails: nextProps.currentEvent.ticketDetails || '',
           link: nextProps.currentEvent.ticketLink ? nextProps.currentEvent.ticketLink : nextProps.currentEvent.link || '',
         });
       });
@@ -134,8 +128,8 @@ class EventForm extends Component {
       orgs,
       location,
       url,
-      free: free === 'free' ? 0 : 1,
-      available: available === 'yes' ? 0 : 1,
+      free,
+      available,
       startDateTime: startDateTime.toString(),
       endDateTime: endDateTime.toString(),
     };
@@ -160,7 +154,7 @@ class EventForm extends Component {
               clearSelected();
               notificationSystem({
                 message: 'You\'ve approved an event, it\'s now in the mobile app!',
-                level: 'success'
+                level: 'success',
               });
             }
           });
