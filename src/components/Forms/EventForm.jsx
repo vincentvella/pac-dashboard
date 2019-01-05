@@ -92,7 +92,7 @@ class EventForm extends Component {
       setUpFirebase();
     }
     if (god) {
-      ref.child(`Mobile/Events/${key}`).remove((error) => {
+      ref.child(`Mobile/Events/${key || 1}`).remove((error) => {
         if (error) {
           notificationSystem({ message: error, level: 'error' });
         } else {
@@ -100,7 +100,7 @@ class EventForm extends Component {
         }
       });
     } else {
-      ref.child(`Web/Events/${key}`).remove((error) => {
+      ref.child(`Web/Events/${key || 1}`).remove((error) => {
         if (error) {
           notificationSystem({ message: error, level: 'error' });
         } else {
@@ -147,7 +147,7 @@ class EventForm extends Component {
         if (err) {
           notificationSystem({ message: err, level: 'error' });
         } else {
-          ref.child(`Web/Events/${key}`).remove((error) => {
+          ref.child(`Web/Events/${key || 1}`).remove((error) => {
             if (error) {
               notificationSystem({ message: error, level: 'error' });
             } else {
@@ -177,7 +177,7 @@ class EventForm extends Component {
           if (err) {
             notificationSystem({ message: err, level: 'error' });
           } else {
-            ref.child(`/Events/${key}`).remove((error) => {
+            ref.child(`/Events/${key || 1}`).remove((error) => {
               if (error) {
                 notificationSystem({ message: error, level: 'error' });
               } else {
