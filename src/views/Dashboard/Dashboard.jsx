@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars,no-undef */
 import React, { Component } from 'react';
 import ChartistGraph from 'react-chartist';
-import { Grid, Row, Col } from 'react-bootstrap';
+import { Grid, Row, Col, ListGroup, ListGroupItem, Well } from 'react-bootstrap';
 import firebase from 'firebase/app';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -61,7 +61,7 @@ class Dashboard extends Component {
   };
 
   render() {
-    console.log('STATE', this.state);
+    const { login } = this.props;
     const { userData } = this.state;
     let creationData = {
       labels: [],
@@ -86,6 +86,24 @@ class Dashboard extends Component {
           series,
         };
       }
+    }
+    if (login.permissionLevel >= 2) {
+      return (
+        <div className="content">
+          <Grid fluid>
+            <Row>
+              <Card
+                fill
+                title="More Coming Soon"
+                content={(
+                  <div>
+                    <Well>{"We're always adding new features to the system so keep an eye out for more!"}</Well>
+                  </div>)}
+              />
+            </Row>
+          </Grid>
+        </div>
+      );
     }
     return (
       <div className="content">
@@ -197,9 +215,13 @@ Dashboard.defaultProps = {
   setOrgs: () => {},
 };
 
+const mapStateToProps = state => ({
+  login: state.login.model,
+});
+
 const mapDispatchToProps = dispatch => bindActionCreators({
   setOrgs,
   setMobileEvents,
 }, dispatch);
 
-export default connect(null, mapDispatchToProps)(Dashboard);
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);

@@ -315,14 +315,17 @@ class EventForm extends Component {
       { value: 'Music/Instrumental', label: 'Music/Instrumental' },
       { value: 'Writing', label: 'Writing' },
     ];
-    const orgOptions = Object.keys(this.props.orgs).map((orgKey) => {
+    const orgOptions = [];
+    Object.keys(this.props.orgs).forEach((orgKey) => {
       if (orgKey && this.props.orgs && this.props.orgs[orgKey] && this.props.orgs[orgKey].name) {
-        return {
-          value: orgKey,
-          label: this.props.orgs[orgKey].name,
-        };
+        const { permissionLevel, orgs } = this.props.login;
+        if (permissionLevel >= 2 && orgs.includes(orgKey)) {
+          orgOptions.push({ value: orgKey, label: this.props.orgs[orgKey].name });
+        }
+        if (permissionLevel <= 1) {
+          orgOptions.push({ value: orgKey, label: this.props.orgs[orgKey].name });
+        }
       }
-      return null;
     });
     return (
       <div className="content">
@@ -579,6 +582,7 @@ class EventForm extends Component {
 
 const mapStateToProps = state => ({
   orgs: state.orgs.model,
+  login: state.login.model,
 });
 
 export default connect(mapStateToProps)(EventForm);
