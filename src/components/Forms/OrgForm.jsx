@@ -167,6 +167,8 @@ class OrgForm extends Component {
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
       { value: 'Theatre', label: 'Theatre' },
+      { value: 'Visual Arts', label: 'Visual Arts' },
+      { value: 'Comedy', label: 'Comedy' },
       { value: 'Music/Instrumental', label: 'Music/Instrumental' },
       { value: 'Writing', label: 'Writing' },
     ];
