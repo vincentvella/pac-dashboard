@@ -311,6 +311,8 @@ class EventForm extends Component {
     const categories = [
       { value: 'A Cappella/Vocal', label: 'A Cappella/Vocal' },
       { value: 'Dance', label: 'Dance' },
+      { value: 'Comedy', label: 'Comedy'},
+      { value: 'Visual Arts', label: 'Visual Arts' },
       { value: 'Theatre', label: 'Theatre' },
       { value: 'Music/Instrumental', label: 'Music/Instrumental' },
       { value: 'Writing', label: 'Writing' },
