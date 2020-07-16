@@ -19,7 +19,7 @@
     "firebase": "^5.8.2",
     "form-serialize": "^0.7.2",
     "history": "^4.7.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "moment": "^2.22.2",
     "node-sass": "4.6.1",
     "node-sass-chokidar": "0.0.3",
